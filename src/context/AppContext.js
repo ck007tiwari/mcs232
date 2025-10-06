@@ -1,6 +1,9 @@
 import React, { createContext, useContext, useState } from 'react';
+import { toast } from 'react-toastify';
 import { 
   dummyUser, 
+  dummyAdmin,
+  validCredentials,
   dummySubjects, 
   dummyPdfs, 
   dummyProgress, 
@@ -33,15 +36,23 @@ export const AppProvider = ({ children }) => {
 
   // Authentication functions
   const login = (email, password) => {
-    // Simulate login
-    if (email && password) {
+    // Check against valid credentials
+    const credential = validCredentials.find(
+      cred => cred.email === email && cred.password === password
+    );
+    
+    if (credential) {
+      setUser(credential.user);
       setIsAuthenticated(true);
-      return true;
+      return { success: true, user: credential.user };
     }
-    return false;
+    return { success: false, message: "Invalid credentials" };
   };
 
   const logout = () => {
+    toast.info('You have been logged out. See you soon!', {
+      icon: '👋'
+    });
     setIsAuthenticated(false);
     setUser(null);
   };
@@ -55,7 +66,8 @@ export const AppProvider = ({ children }) => {
 
   // PDF functions
   const getPdfsBySubject = (subjectId) => {
-    return pdfs.filter(pdf => pdf.subjectId === subjectId);
+    const accessiblePdfs = getAccessiblePdfs();
+    return accessiblePdfs.filter(pdf => pdf.subjectId === subjectId);
   };
 
   const getProgressByPdf = (pdfId) => {
@@ -89,6 +101,59 @@ export const AppProvider = ({ children }) => {
     return newQuestion;
   };
 
+  // Admin functions
+  const deletePdf = (pdfId) => {
+    if (user?.role !== 'admin') {
+      return { success: false, message: "Unauthorized: Admin access required" };
+    }
+    
+    // Remove PDF from pdfs array
+    setPdfs(prev => prev.filter(pdf => pdf.pdfId !== pdfId));
+    
+    // Remove associated progress records
+    setProgress(prev => prev.filter(p => p.pdfId !== pdfId));
+    
+    // Remove associated questions
+    setQuestions(prev => prev.filter(q => q.pdfId !== pdfId));
+    
+    return { success: true, message: "PDF deleted successfully" };
+  };
+
+  // Helper function to check admin permissions
+  const isAdmin = () => user?.role === 'admin';
+
+  // PDF upload function
+  const uploadPdf = (pdfData) => {
+    setPdfs(prev => [...prev, pdfData]);
+    
+    // Update subject PDF count
+    setSubjects(prev => 
+      prev.map(subject => 
+        subject.subjectId === pdfData.subjectId 
+          ? { ...subject, totalPdfs: subject.totalPdfs + 1, totalPages: subject.totalPages + pdfData.totalPages }
+          : subject
+      )
+    );
+    
+    return { success: true, message: "PDF uploaded successfully" };
+  };
+
+  // Get PDFs with access control
+  const getAccessiblePdfs = () => {
+    if (user?.role === 'admin') {
+      return pdfs; // Admin can see all PDFs
+    } else {
+      return pdfs.filter(pdf => 
+        pdf.isPublic || pdf.uploadedBy === user?.userId
+      );
+    }
+  };
+
+  // Get all PDFs for admin (used in admin dashboard)
+  const getAllPdfs = () => {
+    return pdfs;
+  };
+
   const value = {
     // State
     user,
@@ -114,7 +179,12 @@ export const AppProvider = ({ children }) => {
     getProgressByPdf,
     getQuestionsByPdf,
     updateProgress,
-    askQuestion
+    askQuestion,
+    deletePdf,
+    isAdmin,
+    uploadPdf,
+    getAccessiblePdfs,
+    getAllPdfs
   };
 
   return (

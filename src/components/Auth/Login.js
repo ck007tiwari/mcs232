@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Eye, EyeOff, GraduationCap } from 'lucide-react';
+import { toast } from 'react-toastify';
 import { useApp } from '../../context/AppContext';
 
 const Login = () => {
   const [formData, setFormData] = useState({
-    email: 'john.doe@example.com',
-    password: 'password123'
+    email: 'ck@tiwari.com',
+    password: 'ck12345'
   });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -18,11 +19,16 @@ const Login = () => {
     
     // Simulate API call
     setTimeout(() => {
-      const success = login(formData.email, formData.password);
-      if (success) {
+      const result = login(formData.email, formData.password);
+      if (result.success) {
+        toast.success(`Welcome back, ${result.user.name}!`, {
+          icon: '👋'
+        });
         // Navigation handled by AuthRoute
       } else {
-        alert('Invalid credentials');
+        toast.error(result.message || 'Invalid credentials', {
+          icon: '🚫'
+        });
       }
       setLoading(false);
     }, 1000);
@@ -120,8 +126,8 @@ const Login = () => {
           <div className="mt-6 p-4 bg-blue-50 rounded-lg">
             <p className="text-sm text-blue-800">
               <strong>Demo Credentials:</strong><br />
-              Email: john.doe@example.com<br />
-              Password: password123
+              <strong>Student:</strong> ck@tiwari.com / ck12345<br />
+              <strong>Admin:</strong> ck@tiwari.com / ck123456
             </p>
           </div>
         </div>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Eye, EyeOff, GraduationCap } from 'lucide-react';
+import { toast } from 'react-toastify';
 import { useApp } from '../../context/AppContext';
 
 const Register = () => {
@@ -19,7 +20,9 @@ const Register = () => {
     e.preventDefault();
     
     if (formData.password !== formData.confirmPassword) {
-      alert('Passwords do not match');
+      toast.error('Passwords do not match', {
+        icon: '🔒'
+      });
       return;
     }
 
@@ -31,15 +34,20 @@ const Register = () => {
         name: formData.name,
         email: formData.email,
         userId: `user_${Date.now()}`,
-        role: 'student',
+        role: 'student', 
         createdAt: new Date().toISOString(),
-        avatar: `https://via.placeholder.com/150/4F46E5/FFFFFF?text=${formData.name.charAt(0).toUpperCase()}`
+        avatar: '/img/profile.jpg'
       });
       
       if (success) {
+        toast.success('Account created successfully! Welcome to ELearn!', {
+          icon: '🎉'
+        });
         // Navigation handled by AuthRoute
       } else {
-        alert('Registration failed');
+        toast.error('Registration failed. Please try again.', {
+          icon: '❌'
+        });
       }
       setLoading(false);
     }, 1000);

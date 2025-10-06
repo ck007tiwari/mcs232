@@ -13,6 +13,7 @@ import {
   Download,
   Send
 } from 'lucide-react';
+import { toast } from 'react-toastify';
 import { useApp } from '../../context/AppContext';
 
 const PdfViewer = () => {
@@ -68,14 +69,25 @@ const PdfViewer = () => {
   };
 
   const handleAskQuestion = async () => {
-    if (!question.trim()) return;
+    if (!question.trim()) {
+      toast.warning('Please enter a question before submitting', {
+        icon: '💭'
+      });
+      return;
+    }
     
     setIsAsking(true);
     try {
       await askQuestion(pdfId, question, currentPage);
       setQuestion('');
+      toast.success('Question submitted! AI is generating an answer...', {
+        icon: '🤖'
+      });
     } catch (error) {
       console.error('Error asking question:', error);
+      toast.error('Failed to submit question. Please try again.', {
+        icon: '❌'
+      });
     } finally {
       setIsAsking(false);
     }

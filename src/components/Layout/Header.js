@@ -1,5 +1,6 @@
 import React from 'react';
 import { Menu, Bell, Search, User } from 'lucide-react';
+import { toast } from 'react-toastify';
 import { useApp } from '../../context/AppContext';
 
 const Header = () => {
@@ -27,7 +28,10 @@ const Header = () => {
         </div>
 
         <div className="flex items-center space-x-4">
-          <button className="p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors relative">
+          <button 
+            onClick={() => toast.info('Notifications feature coming soon!', { icon: '🔔' })}
+            className="p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors relative"
+          >
             <Bell size={20} />
             <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
           </button>

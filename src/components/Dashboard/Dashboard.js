@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import PdfUpload from '../PDF/PdfUpload';
 import { 
   BookOpen, 
   Clock, 
@@ -18,6 +19,7 @@ import RecentActivity from './RecentActivity';
 
 const Dashboard = () => {
   const { user, subjects, progress, chartData, recentActivity } = useApp();
+  const [showUploadModal, setShowUploadModal] = useState(false);
 
   // Calculate stats
   const totalPdfs = subjects.reduce((sum, subject) => sum + subject.totalPdfs, 0);
@@ -68,7 +70,10 @@ const Dashboard = () => {
       <div className="bg-gradient-to-r from-primary-500 to-primary-600 rounded-xl p-6 text-white">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold mb-2">Welcome back, {user?.name}!</h1>
+            <h1 className="text-2xl font-bold mb-2">
+              Welcome back, {user?.name}!
+              {user?.role === 'admin' && <span className="text-sm font-normal text-primary-200 ml-2">(Admin)</span>}
+            </h1>
             <p className="text-primary-100">
               You've completed {completedPdfs} out of {totalPdfs} PDFs. Keep up the great work!
             </p>
@@ -177,7 +182,10 @@ const Dashboard = () => {
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <button className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-all group">
+          <button 
+            onClick={() => setShowUploadModal(true)}
+            className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-all group"
+          >
             <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center group-hover:bg-primary-200">
               <Upload size={20} className="text-primary-600" />
             </div>
@@ -214,6 +222,11 @@ const Dashboard = () => {
           </Link>
         </div>
       </div>
+
+      <PdfUpload 
+        isOpen={showUploadModal} 
+        onClose={() => setShowUploadModal(false)} 
+      />
     </div>
   );
 };

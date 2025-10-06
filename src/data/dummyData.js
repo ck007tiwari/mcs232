@@ -2,12 +2,35 @@
 
 export const dummyUser = {
   userId: "user_001",
-  name: "John Doe",
-  email: "john.doe@example.com",
+  name: "CK Tiwari",
+  email: "ck@tiwari.com",
   role: "student",
   createdAt: "2024-01-15T10:30:00Z",
-  avatar: "https://via.placeholder.com/150/4F46E5/FFFFFF?text=JD"
+  avatar: "/img/profile.jpg"
 };
+
+export const dummyAdmin = {
+  userId: "admin_001",
+  name: "CK Tiwari (Admin)",
+  email: "ck@tiwari.com",
+  role: "admin",
+  createdAt: "2024-01-15T10:30:00Z",
+  avatar: "/img/profile.jpg"
+};
+
+// Valid credentials
+export const validCredentials = [
+  {
+    email: "ck@tiwari.com",
+    password: "ck12345",
+    user: dummyUser
+  },
+  {
+    email: "ck@tiwari.com",
+    password: "ck123456",
+    user: dummyAdmin
+  }
+];
 
 export const dummySubjects = [
   {
@@ -53,54 +76,71 @@ export const dummySubjects = [
 ];
 
 export const dummyPdfs = [
+  // Existing PDFs from public folder
   {
     pdfId: "pdf_001",
     subjectId: "sub_001",
-    filename: "Introduction to Algorithms.pdf",
-    filePath: "/pdfs/intro-algorithms.pdf",
-    totalPages: 156,
-    fileSize: 4500000,
+    filename: "Computer_800KB_148_page.pdf",
+    originalFileName: "Computer_800KB_148_page.pdf",
+    filePath: "/pdf/Computer_800KB_148_page.pdf",
+    totalPages: 148,
+    fileSize: 819200, // 800KB
     uploadedAt: "2024-01-20T14:30:00Z",
-    thumbnail: "https://via.placeholder.com/200x280/3B82F6/FFFFFF?text=ALGO"
+    uploadedBy: "admin_001",
+    isPublic: true,
+    thumbnail: "https://via.placeholder.com/200x280/3B82F6/FFFFFF?text=COMP"
   },
   {
     pdfId: "pdf_002",
-    subjectId: "sub_001",
-    filename: "Data Structures Handbook.pdf",
-    filePath: "/pdfs/data-structures.pdf",
-    totalPages: 234,
-    fileSize: 6700000,
+    subjectId: "sub_004",
+    filename: "Web_development_1MB_PDF_84_page.pdf",
+    originalFileName: "Web_development_1MB_PDF_84_page.pdf",
+    filePath: "/pdf/Web_development_1MB_PDF_84_page.pdf",
+    totalPages: 84,
+    fileSize: 1048576, // 1MB
     uploadedAt: "2024-01-22T09:15:00Z",
-    thumbnail: "https://via.placeholder.com/200x280/3B82F6/FFFFFF?text=DS"
+    uploadedBy: "admin_001",
+    isPublic: true,
+    thumbnail: "https://via.placeholder.com/200x280/EF4444/FFFFFF?text=WEB"
   },
   {
     pdfId: "pdf_003",
-    subjectId: "sub_002",
-    filename: "Calculus Complete Guide.pdf",
-    filePath: "/pdfs/calculus-guide.pdf",
-    totalPages: 298,
-    fileSize: 8900000,
+    subjectId: "sub_003",
+    filename: "10.5MB_PDF_57_pages.pdf",
+    originalFileName: "10.5MB_PDF_57_pages.pdf", 
+    filePath: "/pdf/10.5MB_PDF_57_pages.pdf",
+    totalPages: 57,
+    fileSize: 11010048, // 10.5MB (this exceeds our 10MB limit)
     uploadedAt: "2024-01-25T11:45:00Z",
-    thumbnail: "https://via.placeholder.com/200x280/10B981/FFFFFF?text=CALC"
+    uploadedBy: "admin_001",
+    isPublic: true,
+    thumbnail: "https://via.placeholder.com/200x280/F59E0B/FFFFFF?text=LARGE"
   },
+  // Some dummy uploaded PDFs
   {
     pdfId: "pdf_004",
-    subjectId: "sub_003",
-    filename: "Machine Learning Fundamentals.pdf",
-    filePath: "/pdfs/ml-fundamentals.pdf",
-    totalPages: 345,
-    fileSize: 12300000,
+    subjectId: "sub_002",
+    filename: "Calculus Complete Guide.pdf",
+    originalFileName: "Calculus Complete Guide.pdf",
+    filePath: "/pdfs/calculus-guide.pdf",
+    totalPages: 89,
+    fileSize: 3400000,
     uploadedAt: "2024-01-28T16:20:00Z",
-    thumbnail: "https://via.placeholder.com/200x280/F59E0B/FFFFFF?text=ML"
+    uploadedBy: "user_001",
+    isPublic: false,
+    thumbnail: "https://via.placeholder.com/200x280/10B981/FFFFFF?text=CALC"
   },
   {
     pdfId: "pdf_005",
     subjectId: "sub_004",
     filename: "React.js Complete Tutorial.pdf",
+    originalFileName: "React.js Complete Tutorial.pdf",
     filePath: "/pdfs/react-tutorial.pdf",
-    totalPages: 189,
-    fileSize: 5600000,
+    totalPages: 67,
+    fileSize: 2800000,
     uploadedAt: "2024-02-01T13:10:00Z",
+    uploadedBy: "user_001",
+    isPublic: false,
     thumbnail: "https://via.placeholder.com/200x280/EF4444/FFFFFF?text=REACT"
   }
 ];
