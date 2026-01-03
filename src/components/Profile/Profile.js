@@ -1,31 +1,52 @@
-import React, { useState } from 'react';
-import { User, Mail, Calendar, BookOpen, Clock, Trophy, Edit, Save, X } from 'lucide-react';
-import { useApp } from '../../context/AppContext';
+import React, { useState } from "react";
+import {
+  User,
+  Mail,
+  Calendar,
+  BookOpen,
+  Clock,
+  Trophy,
+  Edit,
+  Save,
+  X,
+} from "lucide-react";
+import { useApp } from "../../context/AppContext";
 
 const Profile = () => {
   const { user, subjects, progress } = useApp();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
-    name: user?.name || '',
-    email: user?.email || ''
+    name: user?.name || "",
+    email: user?.email || "",
   });
 
   // Calculate stats
-  const totalPdfs = subjects.reduce((sum, subject) => sum + subject.totalPdfs, 0);
-  const completedPdfs = subjects.reduce((sum, subject) => sum + subject.completedPdfs, 0);
-  const totalHours = Math.round(progress.reduce((sum, p) => sum + p.totalTimeSpent, 0) / 3600);
-  const totalPages = subjects.reduce((sum, subject) => sum + subject.readPages, 0);
+  const totalPdfs = subjects.reduce(
+    (sum, subject) => sum + subject.totalPdfs,
+    0
+  );
+  const completedPdfs = subjects.reduce(
+    (sum, subject) => sum + subject.completedPdfs,
+    0
+  );
+  const totalHours = Math.round(
+    progress.reduce((sum, p) => sum + p.totalTimeSpent, 0) / 3600
+  );
+  const totalPages = subjects.reduce(
+    (sum, subject) => sum + subject.readPages,
+    0
+  );
 
   const handleSave = () => {
     // In a real app, this would update the user profile
-    console.log('Saving profile:', formData);
+    console.log("Saving profile:", formData);
     setIsEditing(false);
   };
 
   const handleCancel = () => {
     setFormData({
-      name: user?.name || '',
-      email: user?.email || ''
+      name: user?.name || "",
+      email: user?.email || "",
     });
     setIsEditing(false);
   };
@@ -35,7 +56,9 @@ const Profile = () => {
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Profile</h1>
-        <p className="text-gray-600 mt-1">Manage your account and view your learning progress</p>
+        <p className="text-gray-600 mt-1">
+          Manage your account and view your learning progress
+        </p>
       </div>
 
       {/* Profile Card */}
@@ -59,7 +82,9 @@ const Profile = () => {
 
         <div className="p-6">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-gray-900">Personal Information</h3>
+            <h3 className="text-lg font-semibold text-gray-900">
+              Personal Information
+            </h3>
             {!isEditing ? (
               <button
                 onClick={() => setIsEditing(true)}
@@ -90,12 +115,16 @@ const Profile = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Full Name
+              </label>
               {isEditing ? (
                 <input
                   type="text"
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 />
               ) : (
@@ -107,12 +136,16 @@ const Profile = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Email Address
+              </label>
               {isEditing ? (
                 <input
                   type="email"
                   value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 />
               ) : (
@@ -124,7 +157,9 @@ const Profile = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Role</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Role
+              </label>
               <div className="flex items-center space-x-2 px-3 py-2 bg-gray-50 rounded-lg">
                 <Trophy size={16} className="text-gray-500" />
                 <span className="text-gray-900 capitalize">{user?.role}</span>
@@ -132,7 +167,9 @@ const Profile = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Join Date</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Join Date
+              </label>
               <div className="flex items-center space-x-2 px-3 py-2 bg-gray-50 rounded-lg">
                 <Calendar size={16} className="text-gray-500" />
                 <span className="text-gray-900">
@@ -147,7 +184,9 @@ const Profile = () => {
       {/* Learning Stats */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200">
         <div className="p-6 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">Learning Statistics</h3>
+          <h3 className="text-lg font-semibold text-gray-900">
+            Learning Statistics
+          </h3>
         </div>
         <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -158,15 +197,17 @@ const Profile = () => {
               <p className="text-2xl font-bold text-gray-900">{totalPdfs}</p>
               <p className="text-sm text-gray-600">Total PDFs</p>
             </div>
-            
+
             <div className="text-center">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
                 <Trophy size={24} className="text-green-600" />
               </div>
-              <p className="text-2xl font-bold text-gray-900">{completedPdfs}</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {completedPdfs}
+              </p>
               <p className="text-sm text-gray-600">Completed</p>
             </div>
-            
+
             <div className="text-center">
               <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
                 <Clock size={24} className="text-purple-600" />
@@ -174,7 +215,7 @@ const Profile = () => {
               <p className="text-2xl font-bold text-gray-900">{totalHours}</p>
               <p className="text-sm text-gray-600">Hours Studied</p>
             </div>
-            
+
             <div className="text-center">
               <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-3">
                 <BookOpen size={24} className="text-orange-600" />
@@ -189,7 +230,9 @@ const Profile = () => {
       {/* Subject Progress */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200">
         <div className="p-6 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">Subject Progress</h3>
+          <h3 className="text-lg font-semibold text-gray-900">
+            Subject Progress
+          </h3>
         </div>
         <div className="p-6">
           <div className="space-y-4">
@@ -203,22 +246,30 @@ const Profile = () => {
                         className="w-4 h-4 rounded-full"
                         style={{ backgroundColor: subject.color }}
                       ></div>
-                      <span className="font-medium text-gray-900">{subject.name}</span>
+                      <span className="font-medium text-gray-900">
+                        {subject.name}
+                      </span>
                     </div>
-                    <span className="text-sm text-gray-600">{Math.round(progress)}%</span>
+                    <span className="text-sm text-gray-600">
+                      {Math.round(progress)}%
+                    </span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div
                       className="h-2 rounded-full transition-all"
-                      style={{ 
+                      style={{
                         width: `${progress}%`,
-                        backgroundColor: subject.color
+                        backgroundColor: subject.color,
                       }}
                     ></div>
                   </div>
                   <div className="flex justify-between text-xs text-gray-500 mt-1">
-                    <span>{subject.completedPdfs}/{subject.totalPdfs} PDFs</span>
-                    <span>{subject.readPages}/{subject.totalPages} pages</span>
+                    <span>
+                      {subject.completedPdfs}/{subject.totalPdfs} PDFs
+                    </span>
+                    <span>
+                      {subject.readPages}/{subject.totalPages} pages
+                    </span>
                   </div>
                 </div>
               );
