@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   User,
   Mail,
@@ -9,8 +9,10 @@ import {
   Edit,
   Save,
   X,
+  ArrowLeft,
 } from "lucide-react";
 import { useApp } from "../../context/AppContext";
+import { useNavigate } from "react-router-dom";
 
 const Profile = () => {
   const { user, subjects, progress } = useApp();
@@ -19,27 +21,29 @@ const Profile = () => {
     name: user?.name || "",
     email: user?.email || "",
   });
+  const navigate = useNavigate();
 
+  useEffect(() => {
+    console.log("user", user);
+  }, [user]);
   // Calculate stats
   const totalPdfs = subjects.reduce(
     (sum, subject) => sum + subject.totalPdfs,
-    0
+    0,
   );
   const completedPdfs = subjects.reduce(
     (sum, subject) => sum + subject.completedPdfs,
-    0
+    0,
   );
   const totalHours = Math.round(
-    progress.reduce((sum, p) => sum + p.totalTimeSpent, 0) / 3600
+    progress.reduce((sum, p) => sum + p.totalTimeSpent, 0) / 3600,
   );
   const totalPages = subjects.reduce(
     (sum, subject) => sum + subject.readPages,
-    0
+    0,
   );
 
   const handleSave = () => {
-    // In a real app, this would update the user profile
-    console.log("Saving profile:", formData);
     setIsEditing(false);
   };
 
@@ -54,11 +58,19 @@ const Profile = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Profile</h1>
-        <p className="text-gray-600 mt-1">
-          Manage your account and view your learning progress
-        </p>
+      <div className="flex items-center space-x-4">
+        <button
+          onClick={() => navigate(-1)}
+          className="p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors"
+        >
+          <ArrowLeft size={24} className="text-gray-700" />
+        </button>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Profile</h1>
+          <p className="text-gray-600 mt-1">
+            Manage your account and view your learning progress
+          </p>
+        </div>
       </div>
 
       {/* Profile Card */}
@@ -74,7 +86,10 @@ const Profile = () => {
               <h2 className="text-2xl font-bold">{user?.name}</h2>
               <p className="text-primary-100">{user?.email}</p>
               <p className="text-primary-100 text-sm mt-1">
-                Member since {new Date(user?.createdAt).toLocaleDateString()}
+                Member since:{" "}
+                {user?.createdAt
+                  ? new Date(user?.createdAt).toLocaleDateString()
+                  : "Not available"}
               </p>
             </div>
           </div>

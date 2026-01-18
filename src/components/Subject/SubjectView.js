@@ -1,22 +1,42 @@
-import React from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, BookOpen, Clock, FileText, Play } from 'lucide-react';
+import React, { useState } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { ArrowLeft, BookOpen, Clock, FileText, Play, Trash2 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
+import ConfirmationDialog from '../Layout/ConfirmationDialog';
 
 const SubjectView = () => {
   const { subjectId } = useParams();
-  const { subjects, getPdfsBySubject, getProgressByPdf } = useApp();
-  
+  const { subjects, getPdfsBySubject, getProgressByPdf, deletePdf } = useApp();
+  const navigate = useNavigate();
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [pdfToDelete, setPdfToDelete] = useState(null);
+
   const subject = subjects.find(s => s.subjectId === subjectId);
   const pdfs = getPdfsBySubject(subjectId);
+
+  const handleDelete = (pdfId) => {
+    setPdfToDelete(pdfId);
+    setShowConfirmation(true);
+  };
+
+  const confirmDelete = () => {
+    if (pdfToDelete) {
+      deletePdf(pdfToDelete);
+      setPdfToDelete(null);
+    }
+    setShowConfirmation(false);
+  };
 
   if (!subject) {
     return (
       <div className="text-center py-12">
         <h2 className="text-2xl font-bold text-gray-900">Subject not found</h2>
-        <Link to="/dashboard" className="text-primary-600 hover:text-primary-700 mt-4 inline-block">
-          ← Back to Dashboard
-        </Link>
+        <button 
+          onClick={() => navigate('/dashboard')}
+          className="bg-primary-500 text-white px-4 py-2 rounded-lg hover:bg-primary-600 transition-colors mt-4"
+        >
+          Go Back to Dashboard
+        </button>
       </div>
     );
   }
@@ -42,18 +62,18 @@ const SubjectView = () => {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center space-x-4">
-        <Link 
-          to="/dashboard"
-          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+        <button 
+          onClick={() => navigate(-1)}
+          className="p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors"
         >
-          <ArrowLeft size={20} className="text-gray-600" />
-        </Link>
+          <ArrowLeft size={24} className="text-gray-700" />
+        </button>
         <div className="flex items-center space-x-3">
           <div
-            className="w-6 h-6 rounded-full"
+            className="w-8 h-8 rounded-full"
             style={{ backgroundColor: subject.color }}
           ></div>
-          <h1 className="text-2xl font-bold text-gray-900">{subject.name}</h1>
+          <h1 className="text-3xl font-bold text-gray-900">{subject.name}</h1>
         </div>
       </div>
 
@@ -134,53 +154,64 @@ const SubjectView = () => {
                 const progressPercentage = progress ? progress.completionPercentage : 0;
                 
                 return (
-                  <Link
-                    key={pdf.pdfId}
-                    to={`/pdf/${pdf.pdfId}`}
-                    className="group border border-gray-200 rounded-lg p-4 hover:border-primary-300 hover:shadow-md transition-all"
-                  >
+                  <div key={pdf.pdfId} className="group border border-gray-200 rounded-lg p-4 hover:border-primary-300 hover:shadow-md transition-all">
                     <div className="flex items-start space-x-3">
-                      <img
-                        src={pdf.thumbnail}
-                        alt={pdf.filename}
-                        className="w-16 h-20 object-cover rounded-lg border border-gray-200"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-medium text-gray-900 group-hover:text-primary-600 truncate">
-                          {pdf.filename}
-                        </h3>
-                        <p className="text-sm text-gray-600 mt-1">{pdf.totalPages} pages</p>
-                        <p className="text-sm text-gray-600">{formatFileSize(pdf.fileSize)}</p>
-                        {progress && (
-                          <p className="text-sm text-gray-600">
-                            {formatDuration(progress.totalTimeSpent)} studied
-                          </p>
-                        )}
-                        
-                        <div className="mt-3">
-                          <div className="flex items-center justify-between text-sm mb-1">
-                            <span className="text-gray-600">Progress</span>
-                            <span className="text-gray-900 font-medium">{progressPercentage}%</span>
-                          </div>
-                          <div className="w-full bg-gray-200 rounded-full h-2">
-                            <div
-                              className="h-2 rounded-full transition-all"
-                              style={{ 
-                                width: `${progressPercentage}%`,
-                                backgroundColor: subject.color
-                              }}
-                            ></div>
+                      <Link to={`/pdf/${pdf.pdfId}`} className="flex-1 min-w-0">
+                        <img
+                          src={pdf.thumbnail}
+                          alt={pdf.filename}
+                          className="w-16 h-20 object-cover rounded-lg border border-gray-200"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-medium text-gray-900 group-hover:text-primary-600 truncate">
+                            {pdf.filename}
+                          </h3>
+                          <p className="text-sm text-gray-600 mt-1">{pdf.totalPages} pages</p>
+                          <p className="text-sm text-gray-600">{formatFileSize(pdf.fileSize)}</p>
+                          {progress && (
+                            <p className="text-sm text-gray-600">
+                              {formatDuration(progress.totalTimeSpent)} studied
+                            </p>
+                          )}
+                          
+                          <div className="mt-3">
+                            <div className="flex items-center justify-between text-sm mb-1">
+                              <span className="text-gray-600">Progress</span>
+                              <span className="text-gray-900 font-medium">{progressPercentage}%</span>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-2">
+                              <div
+                                className="h-2 rounded-full transition-all"
+                                style={{ 
+                                  width: `${progressPercentage}%`,
+                                  backgroundColor: subject.color
+                                }}
+                              ></div>
+                            </div>
                           </div>
                         </div>
-                      </div>
+                      </Link>
+                      <button
+                        onClick={() => handleDelete(pdf.pdfId)}
+                        className="p-2 text-gray-500 hover:text-red-500"
+                      >
+                        <Trash2 size={18} />
+                      </button>
                     </div>
-                  </Link>
+                  </div>
                 );
               })}
             </div>
           )}
         </div>
       </div>
+      {showConfirmation && (
+        <ConfirmationDialog
+          message="Are you sure you want to delete this PDF?"
+          onConfirm={confirmDelete}
+          onCancel={() => setShowConfirmation(false)}
+        />
+      )}
     </div>
   );
 };

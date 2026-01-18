@@ -1,54 +1,42 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Eye, EyeOff, GraduationCap } from 'lucide-react';
-import { useApp } from '../../context/AppContext';
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import { Eye, EyeOff, GraduationCap } from "lucide-react";
+import { useApp } from "../../context/AppContext";
 
 const Register = () => {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: ''
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { register } = useApp();
+  const { signup, showToast } = useApp();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (formData.password !== formData.confirmPassword) {
-      alert('Passwords do not match');
+
+    const { confirmPassword, ...rest } = formData;
+    if (rest.password !== confirmPassword) {
+      showToast("Passwords do not match", "error");
       return;
     }
-
     setLoading(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      const success = register({
-        name: formData.name,
-        email: formData.email,
-        userId: `user_${Date.now()}`,
-        role: 'student',
-        createdAt: new Date().toISOString(),
-        avatar: `https://via.placeholder.com/150/4F46E5/FFFFFF?text=${formData.name.charAt(0).toUpperCase()}`
-      });
-      
-      if (success) {
-        // Navigation handled by AuthRoute
-      } else {
-        alert('Registration failed');
-      }
-      setLoading(false);
-    }, 1000);
+    const success = await signup(rest);
+    if (success) {
+      showToast("Account created successfully", "success");
+    } else {
+      showToast("Signup failed", "error");
+    }
+    setLoading(false);
   };
 
   const handleChange = (e) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     }));
   };
 
@@ -66,7 +54,10 @@ const Register = () => {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Full Name
               </label>
               <input
@@ -82,7 +73,10 @@ const Register = () => {
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Email Address
               </label>
               <input
@@ -98,12 +92,15 @@ const Register = () => {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Password
               </label>
               <div className="relative">
                 <input
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   id="password"
                   name="password"
                   value={formData.password}
@@ -123,12 +120,15 @@ const Register = () => {
             </div>
 
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="confirmPassword"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Confirm Password
               </label>
               <div className="relative">
                 <input
-                  type={showConfirmPassword ? 'text' : 'password'}
+                  type={showConfirmPassword ? "text" : "password"}
                   id="confirmPassword"
                   name="confirmPassword"
                   value={formData.confirmPassword}
@@ -142,24 +142,28 @@ const Register = () => {
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
                 >
-                  {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  {showConfirmPassword ? (
+                    <EyeOff size={20} />
+                  ) : (
+                    <Eye size={20} />
+                  )}
                 </button>
               </div>
             </div>
 
             <div className="flex items-center">
-              <input 
-                type="checkbox" 
+              <input
+                type="checkbox"
                 id="terms"
                 required
-                className="w-4 h-4 text-primary-500 border-gray-300 rounded focus:ring-primary-500" 
+                className="w-4 h-4 text-primary-500 border-gray-300 rounded focus:ring-primary-500"
               />
               <label htmlFor="terms" className="ml-2 text-sm text-gray-600">
-                I agree to the{' '}
+                I agree to the{" "}
                 <a href="#" className="text-primary-600 hover:text-primary-700">
                   Terms of Service
-                </a>{' '}
-                and{' '}
+                </a>{" "}
+                and{" "}
                 <a href="#" className="text-primary-600 hover:text-primary-700">
                   Privacy Policy
                 </a>
@@ -171,14 +175,17 @@ const Register = () => {
               disabled={loading}
               className="w-full bg-primary-500 text-white py-3 px-4 rounded-lg hover:bg-primary-600 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'Creating account...' : 'Create Account'}
+              {loading ? "Creating account..." : "Create Account"}
             </button>
           </form>
 
           <div className="mt-6 text-center">
             <p className="text-gray-600">
-              Already have an account?{' '}
-              <Link to="/login" className="text-primary-600 hover:text-primary-700 font-medium">
+              Already have an account?{" "}
+              <Link
+                to="/login"
+                className="text-primary-600 hover:text-primary-700 font-medium"
+              >
                 Sign in
               </Link>
             </p>

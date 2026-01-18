@@ -1,15 +1,3 @@
-// Dummy data for the E-Learning Dashboard
-
-export const dummyUser = {
-  userId: "user_001",
-  name: "John Doe",
-  email: "john.doe@example.com",
-  role: "student",
-  createdAt: "2024-01-15T10:30:00Z",
-  avatar:
-    "https://plus.unsplash.com/premium_photo-1688740375397-34605b6abe48?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8cHJvZmlsZSUyMHBpY3xlbnwwfHwwfHx8MA%3D%3D",
-};
-
 export const dummySubjects = [
   {
     subjectId: "sub_001",

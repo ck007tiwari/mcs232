@@ -10,6 +10,7 @@ import Layout from "./components/Layout/Layout";
 import Login from "./components/Auth/Login";
 import Register from "./components/Auth/Register";
 
+import Toast from "./components/Layout/Toast";
 import SubjectView from "./components/Subject/SubjectView";
 import PdfViewer from "./components/PDF/PdfViewer";
 import Profile from "./components/Profile/Profile";
@@ -29,6 +30,7 @@ const AuthRoute = ({ children }) => {
 const AppRoutes = () => {
   return (
     <Router>
+      <Toast />
       <Routes>
         <Route
           path="/login"
