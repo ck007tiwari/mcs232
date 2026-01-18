@@ -22,7 +22,7 @@ const SubjectListPage = () => {
       return subjects;
     }
     return subjects.filter((subject) =>
-      subject.name.toLowerCase().includes(searchQuery.toLowerCase())
+      subject.name.toLowerCase().includes(searchQuery.toLowerCase()),
     );
   }, [subjects, searchQuery]);
 
@@ -53,7 +53,7 @@ const SubjectListPage = () => {
           </div>
           <button
             onClick={openAddSubjectForm}
-            className="flex items-center space-x-2 bg-primary-500 text-white px-4 py-2 rounded-lg hover:bg-primary-600 transition-colors"
+            className="flex items-center space-x-2 w-60 bg-primary-500 text-white px-4 py-2 rounded-lg hover:bg-primary-600 transition-colors"
           >
             <PlusCircle size={20} />
             <span>Create Subject</span>

@@ -1,68 +1,86 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useApp } from "../../context/AppContext";
 import { X } from "lucide-react";
 
 const AddSubjectForm = () => {
-  const { closeAddSubjectForm, addSubject, showToast } = useApp();
+  const { closeAddSubjectForm, showToast } = useApp();
   const [name, setName] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
     showToast("Feature coming soon!", "info");
-    // if (!name.trim()) return;
-
-    // const newSubject = {
-    //   subjectId: `s_${Date.now()}`,
-    //   name,
-    //   color: `#${Math.floor(Math.random() * 16777215).toString(16)}`,
-    // };
-
-    // addSubject(newSubject);
-    // closeAddSubjectForm();
   };
+
+  // Close on ESC key (UX win)
+  useEffect(() => {
+    const handler = (e) => e.key === "Escape" && closeAddSubjectForm();
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, []);
 
   return (
     <div
-      className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center"
+      className="fixed inset-0 z-[999] flex items-center justify-center
+                 bg-black/40 backdrop-blur-sm"
       onClick={closeAddSubjectForm}
     >
       <div
-        className="bg-white rounded-lg shadow-xl p-8 w-full max-w-md"
         onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-md rounded-2xl bg-white shadow-2xl
+                   animate-in fade-in zoom-in duration-200"
       >
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-800">Add Subject</h2>
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b">
+          <h2 className="text-lg font-semibold text-gray-900">Add Subject</h2>
           <button
             onClick={closeAddSubjectForm}
-            className="text-gray-500 hover:text-gray-800"
+            className="rounded-full p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition"
           >
-            <X size={24} />
+            <X size={18} />
           </button>
         </div>
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label
-              htmlFor="subject-name"
-              className="block text-gray-700 text-sm font-medium mb-2"
-            >
-              Subject Name
+
+        {/* Body */}
+        <form onSubmit={handleSubmit} className="px-6 py-5 space-y-5">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Subject name
             </label>
             <input
               type="text"
-              id="subject-name"
-              placeholder="Enter subject name"
+              placeholder="e.g. Mathematics"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+              autoFocus
+              className="w-full rounded-xl border border-gray-300 px-4 py-2.5
+                         text-sm focus:border-primary-500 focus:ring-2
+                         focus:ring-primary-500/30 transition"
             />
           </div>
-          <button
-            type="submit"
-            className="w-full bg-primary-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-primary-600 transition-colors disabled:bg-gray-400"
-            disabled={!name.trim()}
-          >
-            Add Subject
-          </button>
+
+          {/* Actions */}
+          <div className="flex gap-3 pt-2">
+            <button
+              type="button"
+              onClick={closeAddSubjectForm}
+              className="flex-1 rounded-xl border border-gray-300
+                         py-2.5 text-sm font-medium text-gray-700
+                         hover:bg-gray-100 transition"
+            >
+              Cancel
+            </button>
+
+            <button
+              type="submit"
+              disabled={!name.trim()}
+              className="flex-1 rounded-xl bg-primary-500
+                         py-2.5 text-sm font-semibold text-white
+                         hover:bg-primary-600 transition
+                         disabled:bg-gray-300 disabled:cursor-not-allowed"
+            >
+              Add Subject
+            </button>
+          </div>
         </form>
       </div>
     </div>

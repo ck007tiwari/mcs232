@@ -120,6 +120,62 @@ export const AppProvider = ({ children }) => {
     return false;
   };
 
+  // update user profile email and name function
+  const updateProfile = async (email, username) => {
+    if (email && username) {
+      try {
+        const token = localStorage.getItem("token");
+        const { data } = await axios.put(
+          API_BASE_URL + "/users/profile/",
+          {
+            email,
+            username,
+          },
+          { headers: { Authorization: `Bearer ${token}` } },
+        );
+
+        if (!data) {
+          throw new Error("Invalid response from server");
+        }
+
+        const updatedUser = { ...data, name: data.username };
+        delete updatedUser.username;
+        showToast("Profile updated successfully", "success");
+        setUser(updatedUser);
+        localStorage.setItem("user", JSON.stringify(updatedUser));
+      } catch (error) {
+        console.error("Update profile failed:", error);
+        showToast("Failed to update profile", "error");
+      }
+    }
+  };
+
+  // Change password function
+  const changePassword = async (oldPassword, newPassword) => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.put(
+        API_BASE_URL + "/users/change-password/",
+        {
+          old_password: oldPassword,
+          new_password: newPassword,
+        },
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+      showToast("Password changed successfully", "success");
+      // it should return to login page after password change and logout user
+      logout();
+      return true;
+    } catch (error) {
+      console.error("Change password failed:", error);
+      showToast(
+        error.response?.data?.message || "Failed to change password",
+        "error",
+      );
+      return false;
+    }
+  };
+
   const logout = () => {
     setIsAuthenticated(false);
     setUser(null);
@@ -255,6 +311,8 @@ export const AppProvider = ({ children }) => {
     signup,
     login,
     logout,
+    updateProfile,
+    changePassword,
     getPdfsBySubject,
     getProgressByPdf,
     getQuestionsByPdf,
