@@ -21,22 +21,22 @@ const Dashboard = () => {
   // Calculate stats
   const totalPdfs = subjects.reduce(
     (sum, subject) => sum + subject.totalPdfs,
-    0
+    0,
   );
   const completedPdfs = subjects.reduce(
     (sum, subject) => sum + subject.completedPdfs,
-    0
+    0,
   );
   const totalPages = subjects.reduce(
     (sum, subject) => sum + subject.totalPages,
-    0
+    0,
   );
   const readPages = subjects.reduce(
     (sum, subject) => sum + subject.readPages,
-    0
+    0,
   );
   const totalHours = Math.round(
-    progress.reduce((sum, p) => sum + p.totalTimeSpent, 0) / 3600
+    progress.reduce((sum, p) => sum + p.totalTimeSpent, 0) / 3600,
   );
   const averageProgress = Math.round((readPages / totalPages) * 100);
 
@@ -163,8 +163,8 @@ const Dashboard = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {subjects.map((subject) => (
                 <Link
-                  key={subject.subjectId}
-                  to={`/subject/${subject.subjectId}`}
+                  key={subject.id}
+                  to={`/subject/${subject.id}`}
                   className="p-4 border border-gray-200 rounded-lg hover:border-primary-300 hover:shadow-md transition-all group"
                 >
                   <div className="flex items-center justify-between mb-3">
@@ -191,7 +191,7 @@ const Dashboard = () => {
                     </span>
                     <span className="text-gray-500">
                       {Math.round(
-                        (subject.readPages / subject.totalPages) * 100
+                        (subject.readPages / subject.totalPages) * 100,
                       )}
                       % complete
                     </span>

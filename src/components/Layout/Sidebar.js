@@ -81,8 +81,8 @@ const Sidebar = () => {
             </div>
             {subjects.map((subject) => (
               <NavLink
-                key={subject.subjectId}
-                to={`/subject/${subject.subjectId}`}
+                key={subject.id}
+                to={`/subject/${subject.id}`}
                 className={({ isActive }) =>
                   `flex items-center space-x-3 px-3 py-2 rounded-lg mb-1 transition-colors ${
                     isActive
@@ -106,7 +106,7 @@ const Sidebar = () => {
         {sidebarOpen && (
           <div className="px-4 mt-8">
             <button
-              onClick={openUploadForm}
+              onClick={() => openUploadForm()}
               className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors mb-4"
             >
               <Upload size={16} />
@@ -127,6 +127,5 @@ const Sidebar = () => {
     </div>
   );
 };
-
 
 export default Sidebar;

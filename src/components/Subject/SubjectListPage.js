@@ -2,6 +2,7 @@ import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useApp } from "../../context/AppContext";
 import { Eye, Edit, Trash2, PlusCircle, Search, X } from "lucide-react";
+import AddSubjectForm from "./AddSubjectForm";
 
 const SubjectListPage = () => {
   const { subjects, openAddSubjectForm, deleteSubject } = useApp();
@@ -66,20 +67,16 @@ const SubjectListPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredSubjects.map((subject) => (
               <div
-                key={subject.subjectId}
+                key={subject.id}
                 className="border border-gray-200 rounded-lg p-4"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
-                    <div
-                      className="w-4 h-4 rounded-full"
-                      style={{ backgroundColor: subject.color }}
-                    ></div>
                     <h2 className="text-lg font-semibold">{subject.name}</h2>
                   </div>
                   <div className="flex items-center space-x-2">
                     <button
-                      onClick={() => navigate(`/subject/${subject.subjectId}`)}
+                      onClick={() => navigate(`/subject/${subject.id}`)}
                       className="p-2 text-gray-500 hover:text-primary-500"
                     >
                       <Eye size={18} />
@@ -91,7 +88,7 @@ const SubjectListPage = () => {
                       <Edit size={18} />
                     </button>
                     <button
-                      onClick={() => deleteSubject(subject.subjectId)}
+                      onClick={() => deleteSubject(subject.id)}
                       className="p-2 text-gray-500 hover:text-red-500"
                     >
                       <Trash2 size={18} />
@@ -106,6 +103,9 @@ const SubjectListPage = () => {
           </div>
         </div>
       </div>
+      {editingSubject && (
+        <AddSubjectForm subject={editingSubject} onClose={closeEditForm} />
+      )}
     </div>
   );
 };

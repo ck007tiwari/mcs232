@@ -1,18 +1,36 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
 import { useApp } from "../../context/AppContext";
 import { X } from "lucide-react";
+import { pdfjs } from "react-pdf";
+
+// Configure the PDF worker to allow page counting
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
+
+export const getPdfPageCount = async (file) => {
+  const arrayBuffer = await file.arrayBuffer();
+  const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
+  return pdf.numPages;
+};
 
 const UploadForm = () => {
-  const { closeUploadForm, subjects, addPdf, uploadSubjectId, showToast } =
-    useApp();
+  const {
+    closeUploadForm,
+    subjects,
+    addPdf,
+    uploadSubjectId,
+    showToast,
+    uploadPdf,
+  } = useApp();
   const [file, setFile] = useState(null);
   const [title, setTitle] = useState("");
   const [subject, setSubject] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (uploadSubjectId) {
       setSubject(uploadSubjectId);
+    } else {
+      setSubject("");
     }
   }, [uploadSubjectId]);
 
@@ -22,31 +40,39 @@ const UploadForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!file || !title || !subject) {
+      showToast("Please fill in all fields", "error");
+      return;
+    }
 
-    // 1. Create a FormData object (Required for files)
-    const formData = new FormData();
-    formData.append("pdf", file); // 'pdf' must match upload.single('pdf') in backend
-    formData.append("title", title);
-    formData.append("subject", subject);
+    setIsSubmitting(true);
 
     try {
-      // 2. Send to your running backend
-      const res = await axios.post(
-        "http://localhost:5001/api/pdfs/upload",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data", // Crucial header
-          },
-        }
-      );
-      addPdf(res.data);
-      showToast("Upload Successful!", "success");
-      console.log(res.data);
-      closeUploadForm();
-    } catch (err) {
-      console.error(err);
-      showToast("Upload Failed", "error");
+      const pageCount = await getPdfPageCount(file).catch((err) => {
+        console.error("Failed to calculate page count", err);
+        return 0; // Fallback if PDF parsing fails
+      });
+
+      console.log("pageCount", pageCount);
+      const formData = new FormData();
+      formData.append("file", file); // 'pdf' in binary upload API
+      formData.append("title", title);
+      formData.append("page_count", pageCount);
+      formData.append("subject_id", subject);
+
+      const result = await uploadPdf(formData);
+      console.log("result", result);
+      if (result.success) {
+        showToast("PDF uploaded successfully", "success");
+        closeUploadForm();
+      } else {
+        showToast(result.message || "Upload failed", "error");
+      }
+    } catch (error) {
+      console.error("Upload error:", error);
+      showToast("An error occurred during upload", "error");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -101,7 +127,7 @@ const UploadForm = () => {
                 Select a subject
               </option>
               {subjects.map((s) => (
-                <option key={s.subjectId} value={s.subjectId}>
+                <option key={s.id} value={s.id}>
                   {s.name}
                 </option>
               ))}
@@ -127,10 +153,10 @@ const UploadForm = () => {
           </div>
           <button
             type="submit"
-            className="w-full bg-primary-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-primary-600 transition-colors disabled:bg-gray-400"
-            disabled={!file || !title || !subject}
+            className="w-full bg-primary-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-primary-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+            disabled={!file || !title || !subject || isSubmitting}
           >
-            Upload PDF
+            {isSubmitting ? "Uploading..." : "Upload PDF"}
           </button>
         </form>
       </div>

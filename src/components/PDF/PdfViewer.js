@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link, useLocation } from "react-router-dom";
+import { Document, Page, pdfjs } from "react-pdf";
 import {
   ArrowLeft,
   MessageCircle,
@@ -15,6 +16,9 @@ import {
 } from "lucide-react";
 import { useApp } from "../../context/AppContext";
 
+// Configure PDF worker
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
+
 const PdfViewer = () => {
   const { pdfId } = useParams();
   const location = useLocation();
@@ -23,10 +27,31 @@ const PdfViewer = () => {
   const [currentPage, setCurrentPage] = useState(location.state?.page || 1);
   const [zoom, setZoom] = useState(100);
   const [showQA, setShowQA] = useState(false);
+  const [numPages, setNumPages] = useState(null);
 
-  const pdf = pdfs.find((p) => p.pdfId === pdfId);
-  const subject = subjects.find((s) => s.subjectId === pdf?.subjectId);
+  // Retrieve PDF from state (passed from SubjectView) or find in context
+  const pdfFromState = location.state?.pdf;
+  const pdfFromContext = pdfs.find(
+    (p) => String(p.id) === String(pdfId) || String(p.pdfId) === String(pdfId),
+  );
+  const pdf = pdfFromState || pdfFromContext;
+
+  // Normalize PDF data (handle API vs Dummy data structure)
+  const pdfTitle = pdf?.title || pdf?.filename;
+  const pdfFile = pdf?.file || pdf?.url;
+  const pdfTotalPages = pdf?.page_count || pdf?.totalPages || numPages || 0;
+  const subjectId = pdf?.subject || pdf?.subjectId;
+
+  const subject = subjects.find(
+    (s) =>
+      String(s.id) === String(subjectId) ||
+      String(s.subjectId) === String(subjectId),
+  );
   const progress = getProgressByPdf(pdfId);
+
+  const onDocumentLoadSuccess = ({ numPages }) => {
+    setNumPages(numPages);
+  };
 
   useEffect(() => {
     if (pdf && progress) {
@@ -35,14 +60,14 @@ const PdfViewer = () => {
         pagesRead: Math.max(progress.pagesRead, currentPage),
         lastPageRead: currentPage,
         completionPercentage: Math.round(
-          (Math.max(progress.pagesRead, currentPage) / pdf.totalPages) * 100
+          (Math.max(progress.pagesRead, currentPage) / pdfTotalPages) * 100,
         ),
         lastAccessed: new Date().toISOString(),
         totalTimeSpent: progress.totalTimeSpent + 60, // Add 1 minute
       };
       updateProgress(pdfId, newProgress);
     }
-  }, [currentPage, pdfId]);
+  }, [currentPage, pdfId, pdfTotalPages]);
 
   if (!pdf) {
     return (
@@ -59,7 +84,7 @@ const PdfViewer = () => {
   }
 
   const handleNextPage = () => {
-    if (currentPage < pdf.totalPages) {
+    if (currentPage < pdfTotalPages) {
       setCurrentPage(currentPage + 1);
     }
   };
@@ -89,17 +114,17 @@ const PdfViewer = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <Link
-                  to={subject ? `/subject/${subject.subjectId}` : "/dashboard"}
+                  to={subject ? `/subject/${subject.id}` : "/dashboard"}
                   className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                 >
                   <ArrowLeft size={20} className="text-gray-600" />
                 </Link>
                 <div>
                   <h1 className="text-lg font-semibold text-gray-900 truncate">
-                    {pdf.filename}
+                    {pdfTitle}
                   </h1>
                   <p className="text-sm text-gray-600">
-                    {subject?.name} • Page {currentPage} of {pdf.totalPages}
+                    {subject?.name} • Page {currentPage} of {pdfTotalPages}
                   </p>
                 </div>
               </div>
@@ -128,11 +153,11 @@ const PdfViewer = () => {
                     <ChevronLeft size={20} />
                   </button>
                   <span className="text-sm text-gray-600">
-                    {currentPage} / {pdf.totalPages}
+                    {currentPage} / {pdfTotalPages}
                   </span>
                   <button
                     onClick={handleNextPage}
-                    disabled={currentPage === pdf.totalPages}
+                    disabled={currentPage === pdfTotalPages}
                     className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <ChevronRight size={20} />
@@ -181,31 +206,27 @@ const PdfViewer = () => {
                   minHeight: "800px",
                 }}
               >
-                <div className="flex items-center justify-center h-full text-gray-500">
-                  <div className="text-center">
-                    <BookOpen size={48} className="mx-auto mb-4" />
-                    <p className="text-lg font-medium">
-                      PDF Page {currentPage}
-                    </p>
-                    <p className="text-sm">
-                      In a real application, this would display the actual PDF
-                      content using PDF.js
-                    </p>
-                    <div className="mt-8 p-4 bg-gray-50 rounded-lg text-left max-w-md mx-auto">
-                      <h4 className="font-medium mb-2">
-                        Sample Content Preview:
-                      </h4>
-                      <p className="text-sm">
-                        This page would contain the actual PDF content. The
-                        viewer supports:
-                        <br />• Zooming and navigation
-                        <br />• Progress tracking
-                        <br />• Q&A integration
-                        <br />• Responsive design
-                      </p>
+                <Document
+                  file={pdfFile}
+                  onLoadSuccess={onDocumentLoadSuccess}
+                  loading={
+                    <div className="flex items-center justify-center h-96">
+                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
                     </div>
-                  </div>
-                </div>
+                  }
+                  error={
+                    <div className="p-10 text-center text-red-500">
+                      Failed to load PDF file.
+                    </div>
+                  }
+                >
+                  <Page
+                    pageNumber={currentPage}
+                    scale={zoom / 100}
+                    renderTextLayer={false}
+                    renderAnnotationLayer={false}
+                  />
+                </Document>
               </div>
             </div>
           </div>

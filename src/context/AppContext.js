@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
+import api from "./api";
 import {
   dummySubjects,
   dummyPdfs,
@@ -8,6 +9,14 @@ import {
   dummyChartData,
 } from "../data/dummyData";
 import API_BASE_URL from "./envVariables";
+import {
+  createSubject,
+  getSubjects,
+  deleteSubjectApi,
+  updateSubject,
+  uploadPdfToSubject,
+  getSubjectById,
+} from "./subjectApi";
 
 const AppContext = createContext();
 
@@ -61,11 +70,25 @@ export const AppProvider = ({ children }) => {
   const openAddSubjectForm = () => setAddSubjectFormOpen(true);
   const closeAddSubjectForm = () => setAddSubjectFormOpen(false);
 
+  useEffect(() => {
+    const fetchSubjects = async () => {
+      if (isAuthenticated) {
+        try {
+          const data = await getSubjects();
+          setSubjects(data);
+        } catch (error) {
+          console.error("Error fetching subjects:", error);
+        }
+      }
+    };
+    fetchSubjects();
+  }, [isAuthenticated]);
+
   //signup function
   const signup = async (user) => {
     const { name, email, password, role } = user;
     try {
-      const { data } = await axios.post(API_BASE_URL + "/users/register/", {
+      const { data } = await api.post("/users/register/", {
         username: name,
         email,
         password,
@@ -94,7 +117,7 @@ export const AppProvider = ({ children }) => {
   const login = async (email, password) => {
     if (email && password) {
       try {
-        const { data } = await axios.post(API_BASE_URL + "/users/login/", {
+        const { data } = await api.post("/users/login/", {
           email,
           password,
         });
@@ -124,15 +147,10 @@ export const AppProvider = ({ children }) => {
   const updateProfile = async (email, username) => {
     if (email && username) {
       try {
-        const token = localStorage.getItem("token");
-        const { data } = await axios.put(
-          API_BASE_URL + "/users/profile/",
-          {
-            email,
-            username,
-          },
-          { headers: { Authorization: `Bearer ${token}` } },
-        );
+        const { data } = await api.put("/users/profile/", {
+          email,
+          username,
+        });
 
         if (!data) {
           throw new Error("Invalid response from server");
@@ -153,15 +171,10 @@ export const AppProvider = ({ children }) => {
   // Change password function
   const changePassword = async (oldPassword, newPassword) => {
     try {
-      const token = localStorage.getItem("token");
-      await axios.put(
-        API_BASE_URL + "/users/change-password/",
-        {
-          old_password: oldPassword,
-          new_password: newPassword,
-        },
-        { headers: { Authorization: `Bearer ${token}` } },
-      );
+      await api.put("/users/change-password/", {
+        old_password: oldPassword,
+        new_password: newPassword,
+      });
       showToast("Password changed successfully", "success");
       // it should return to login page after password change and logout user
       logout();
@@ -207,39 +220,68 @@ export const AppProvider = ({ children }) => {
 
   const addSubject = async (subject) => {
     try {
-      const res = await axios.post(
-        "http://localhost:5001/api/subjects",
-        subject,
-      );
-      setSubjects((prev) => [...prev, res.data]);
+      const data = await createSubject(subject);
+
+      setSubjects((prev) => [...prev, data]);
+      return { success: true };
     } catch (error) {
       console.error("Error adding subject:", error);
+      return {
+        success: false,
+        message: error.response?.data?.message || "Failed to add subject",
+      };
     }
   };
 
   const editSubject = async (subjectId, updatedSubject) => {
-    console.log("editSubject called but api is pending");
-    // try {
-    //   const res = await axios.put(
-    //     `http://localhost:5001/api/subjects/${subjectId}`,
-    //     updatedSubject
-    //   );
-    //   setSubjects((prev) =>
-    //     prev.map((s) => (s.subjectId === subjectId ? res.data : s))
-    //   );
-    // } catch (error) {
-    //   console.error("Error editing subject:", error);
-    // }
+    try {
+      const data = await updateSubject(subjectId, updatedSubject);
+      setSubjects((prev) => prev.map((s) => (s.id === subjectId ? data : s)));
+      return { success: true };
+    } catch (error) {
+      console.error("Error updating subject:", error);
+      return {
+        success: false,
+        message: error.response?.data?.message || "Failed to update subject",
+      };
+    }
   };
 
   const deleteSubject = async (subjectId) => {
-    console.log("deleteSubject called but api is pending");
-    // try {
-    //   await axios.delete(`http://localhost:5001/api/subjects/${subjectId}`);
-    //   setSubjects((prev) => prev.filter((s) => s.subjectId !== subjectId));
-    // } catch (error) {
-    //   console.error("Error deleting subject:", error);
-    // }
+    try {
+      console.log(subjectId);
+      await deleteSubjectApi(subjectId);
+      setSubjects((prev) => prev.filter((s) => s.id !== subjectId));
+    } catch (error) {
+      console.error("Error deleting subject:", error);
+    }
+  };
+
+  const uploadPdf = async (pdfData) => {
+    try {
+      const data = await uploadPdfToSubject(pdfData);
+      setPdfs((prev) => [...prev, data]);
+      return { success: true };
+    } catch (error) {
+      console.error("Error uploading PDF:", error);
+      return {
+        success: false,
+        message: error.response?.data?.message || "Failed to upload PDF",
+      };
+    }
+  };
+
+  const getSubjectDetails = async (subjectId) => {
+    try {
+      const data = await getSubjectById(subjectId);
+      return { success: true, data };
+    } catch (error) {
+      console.error("Error fetching subject details:", error);
+      return {
+        success: false,
+        message: error.response?.data?.message || "Failed to fetch subject",
+      };
+    }
   };
 
   // Progress functions
@@ -296,10 +338,19 @@ export const AppProvider = ({ children }) => {
     isAddSubjectFormOpen,
     uploadSubjectId,
     toast,
+    //files
+    uploadPdf,
 
     // Setters
     setCurrentPdf,
     setSidebarOpen,
+
+    // users
+    login,
+    signup,
+    logout,
+    updateProfile,
+    changePassword,
 
     // Functions
     showToast,
@@ -308,14 +359,12 @@ export const AppProvider = ({ children }) => {
     closeUploadForm,
     openAddSubjectForm,
     closeAddSubjectForm,
-    signup,
-    login,
-    logout,
-    updateProfile,
-    changePassword,
+
+    // PDFs
     getPdfsBySubject,
     getProgressByPdf,
     getQuestionsByPdf,
+    getSubjectDetails,
     addPdf,
     deletePdf,
     addSubject,
