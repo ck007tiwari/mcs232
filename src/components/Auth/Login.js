@@ -1,43 +1,34 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Eye, EyeOff, GraduationCap } from 'lucide-react';
-import { toast } from 'react-toastify';
-import { useApp } from '../../context/AppContext';
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import { Eye, EyeOff, GraduationCap } from "lucide-react";
+import { useApp } from "../../context/AppContext";
 
 const Login = () => {
   const [formData, setFormData] = useState({
-    email: 'ck@tiwari.com',
-    password: 'ck12345'
+    email: "admin@example.com",
+    password: "securepassword123",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { login } = useApp();
+  const { login, showToast } = useApp();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      const result = login(formData.email, formData.password);
-      if (result.success) {
-        toast.success(`Welcome back, ${result.user.name}!`, {
-          icon: '👋'
-        });
-        // Navigation handled by AuthRoute
-      } else {
-        toast.error(result.message || 'Invalid credentials', {
-          icon: '🚫'
-        });
-      }
-      setLoading(false);
-    }, 1000);
+
+    const success = await login(formData.email, formData.password);
+    if (success) {
+      showToast("Login successful", "success");
+    } else {
+      showToast("Invalid username or password", "error");
+    }
+    setLoading(false);
   };
 
   const handleChange = (e) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     }));
   };
 
@@ -55,7 +46,10 @@ const Login = () => {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Email Address
               </label>
               <input
@@ -71,12 +65,15 @@ const Login = () => {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Password
               </label>
               <div className="relative">
                 <input
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   id="password"
                   name="password"
                   value={formData.password}
@@ -97,10 +94,16 @@ const Login = () => {
 
             <div className="flex items-center justify-between">
               <label className="flex items-center">
-                <input type="checkbox" className="w-4 h-4 text-primary-500 border-gray-300 rounded focus:ring-primary-500" />
+                <input
+                  type="checkbox"
+                  className="w-4 h-4 text-primary-500 border-gray-300 rounded focus:ring-primary-500"
+                />
                 <span className="ml-2 text-sm text-gray-600">Remember me</span>
               </label>
-              <a href="#" className="text-sm text-primary-600 hover:text-primary-700">
+              <a
+                href="#"
+                className="text-sm text-primary-600 hover:text-primary-700"
+              >
                 Forgot password?
               </a>
             </div>
@@ -110,14 +113,17 @@ const Login = () => {
               disabled={loading}
               className="w-full bg-primary-500 text-white py-3 px-4 rounded-lg hover:bg-primary-600 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'Signing in...' : 'Sign In'}
+              {loading ? "Signing in..." : "Sign In"}
             </button>
           </form>
 
           <div className="mt-6 text-center">
             <p className="text-gray-600">
-              Don't have an account?{' '}
-              <Link to="/register" className="text-primary-600 hover:text-primary-700 font-medium">
+              Don't have an account?{" "}
+              <Link
+                to="/register"
+                className="text-primary-600 hover:text-primary-700 font-medium"
+              >
                 Sign up
               </Link>
             </p>
@@ -125,9 +131,11 @@ const Login = () => {
 
           <div className="mt-6 p-4 bg-blue-50 rounded-lg">
             <p className="text-sm text-blue-800">
-              <strong>Demo Credentials:</strong><br />
-              <strong>Student:</strong> ck@tiwari.com / ck12345<br />
-              <strong>Admin:</strong> ck@tiwari.com / ck123456
+              <strong>Demo Credentials:</strong>
+              <br />
+              Email: admin@example.com
+              <br />
+              Password: securepassword123
             </p>
           </div>
         </div>
