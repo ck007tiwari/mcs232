@@ -190,9 +190,6 @@ export const AppProvider = ({ children }) => {
   };
 
   const logout = () => {
-    toast.info("You have been logged out. See you soon!", {
-      icon: "👋",
-    });
     setIsAuthenticated(false);
     setUser(null);
     localStorage.removeItem("user");
@@ -324,14 +321,6 @@ export const AppProvider = ({ children }) => {
 
     setQuestions((prev) => [newQuestion, ...prev]);
     return newQuestion;
-  };
-
-  // Helper function to check admin permissions
-  const isAdmin = () => user?.role === "admin";
-
-  // Get all PDFs for admin (used in admin dashboard)
-  const getAllPdfs = () => {
-    return pdfs;
   };
 
   const value = {
