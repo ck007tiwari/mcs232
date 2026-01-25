@@ -13,8 +13,14 @@ import {
 import { useApp } from "../../context/AppContext";
 
 const Sidebar = () => {
-  const { sidebarOpen, subjects, openUploadForm, openAddSubjectForm, logout } =
-    useApp();
+  const {
+    sidebarOpen,
+    subjects,
+    openUploadForm,
+    openAddSubjectForm,
+    logout,
+    isAdmin,
+  } = useApp();
   const navigate = useNavigate();
 
   const navItems = [
@@ -43,7 +49,7 @@ const Sidebar = () => {
           {sidebarOpen && (
             <div>
               <h1 className="text-xl font-bold text-gray-900">ELearn</h1>
-              {isAdmin() && (
+              {isAdmin && (
                 <span className="text-xs text-primary-600 font-medium">
                   Admin Panel
                 </span>

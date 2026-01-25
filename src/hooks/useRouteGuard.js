@@ -1,6 +1,6 @@
-import { useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useApp } from '../context/AppContext';
+import { useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useApp } from "../context/AppContext";
 
 /**
  * Custom hook to handle route protection and navigation guards
@@ -14,37 +14,44 @@ export const useRouteGuard = () => {
     const currentPath = location.pathname;
 
     // Define protected routes
-    const protectedRoutes = ['/dashboard', '/profile', '/qa-history', '/subject', '/pdf'];
-    const adminRoutes = ['/admin'];
-    const authRoutes = ['/login', '/register'];
+    const protectedRoutes = [
+      "/dashboard",
+      "/profile",
+      "/qa-history",
+      "/subjects",
+      "/subject",
+      "/pdf",
+    ];
+    const adminRoutes = ["/admin"];
+    const authRoutes = ["/login", "/register"];
 
     // Check if current path is protected
-    const isProtectedRoute = protectedRoutes.some(route => 
-      currentPath.startsWith(route)
+    const isProtectedRoute = protectedRoutes.some((route) =>
+      currentPath.startsWith(route),
     );
 
-    const isAdminRoute = adminRoutes.some(route => 
-      currentPath.startsWith(route)
+    const isAdminRoute = adminRoutes.some((route) =>
+      currentPath.startsWith(route),
     );
 
-    const isAuthRoute = authRoutes.some(route => 
-      currentPath.startsWith(route)
+    const isAuthRoute = authRoutes.some((route) =>
+      currentPath.startsWith(route),
     );
 
     // Redirect logic
     if (isProtectedRoute && !isAuthenticated) {
       // Unauthenticated user trying to access protected route
-      navigate('/unauthorized', { replace: true });
+      navigate("/login", { replace: true });
     } else if (isAdminRoute && (!isAuthenticated || !isAdmin())) {
       // Non-admin user trying to access admin route
       if (!isAuthenticated) {
-        navigate('/unauthorized', { replace: true });
+        navigate("/login", { replace: true });
       } else {
-        navigate('/dashboard', { replace: true });
+        navigate("/dashboard", { replace: true });
       }
     } else if (isAuthRoute && isAuthenticated) {
       // Authenticated user trying to access auth pages
-      navigate('/dashboard', { replace: true });
+      navigate("/dashboard", { replace: true });
     }
   }, [location.pathname, isAuthenticated, isAdmin, navigate]);
 
@@ -52,7 +59,7 @@ export const useRouteGuard = () => {
     isAuthenticated,
     isAdmin: isAdmin(),
     user,
-    currentPath: location.pathname
+    currentPath: location.pathname,
   };
 };
 
@@ -64,23 +71,30 @@ export const useCanAccess = (routePath) => {
 
   const canAccess = (path) => {
     // Public routes
-    if (['/login', '/register', '/unauthorized', '/404'].includes(path)) {
+    if (["/login", "/register", "/unauthorized", "/404"].includes(path)) {
       return true;
     }
 
     // Auth routes (only for non-authenticated users)
-    if (['/login', '/register'].includes(path)) {
+    if (["/login", "/register"].includes(path)) {
       return !isAuthenticated;
     }
 
     // Protected routes (require authentication)
-    const protectedRoutes = ['/dashboard', '/profile', '/qa-history', '/subject', '/pdf'];
-    if (protectedRoutes.some(route => path.startsWith(route))) {
+    const protectedRoutes = [
+      "/dashboard",
+      "/profile",
+      "/qa-history",
+      "/subjects",
+      "/subject",
+      "/pdf",
+    ];
+    if (protectedRoutes.some((route) => path.startsWith(route))) {
       return isAuthenticated;
     }
 
     // Admin routes (require admin role)
-    if (path.startsWith('/admin')) {
+    if (path.startsWith("/admin")) {
       return isAuthenticated && isAdmin();
     }
 

@@ -16,29 +16,39 @@ import ProgressChart from "./ProgressChart";
 import SubjectProgress from "./SubjectProgress";
 
 const Dashboard = () => {
-  const { user, subjects, progress, chartData } = useApp();
+  const {
+    user,
+    subjects,
+    progress,
+    chartData,
+    isUploadFormOpen,
+    openUploadForm,
+    closeUploadForm,
+  } = useApp();
 
   // Calculate stats
-  const totalPdfs = subjects.reduce(
-    (sum, subject) => sum + subject.totalPdfs,
+  const totalPdfs = subjects?.reduce(
+    (sum, subject) => sum + (Number(subject.totalPdfs) || 0),
     0,
   );
-  const completedPdfs = subjects.reduce(
-    (sum, subject) => sum + subject.completedPdfs,
+  const completedPdfs = subjects?.reduce(
+    (sum, subject) => sum + (Number(subject.completedPdfs) || 0),
     0,
   );
-  const totalPages = subjects.reduce(
-    (sum, subject) => sum + subject.totalPages,
+  const totalPages = subjects?.reduce(
+    (sum, subject) => sum + (Number(subject.totalPages) || 0),
     0,
   );
-  const readPages = subjects.reduce(
-    (sum, subject) => sum + subject.readPages,
+  const readPages = subjects?.reduce(
+    (sum, subject) => sum + (Number(subject.readPages) || 0),
     0,
   );
   const totalHours = Math.round(
-    progress.reduce((sum, p) => sum + p.totalTimeSpent, 0) / 3600,
+    progress?.reduce((sum, p) => sum + (Number(p.totalTimeSpent) || 0), 0) /
+      3600,
   );
-  const averageProgress = Math.round((readPages / totalPages) * 100);
+  const averageProgress =
+    totalPages > 0 ? Math.round((readPages / totalPages) * 100) : 0;
 
   const stats = [
     {
@@ -161,54 +171,57 @@ const Dashboard = () => {
           </div>
           <div className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {subjects.map((subject) => (
-                <Link
-                  key={subject.id}
-                  to={`/subject/${subject.id}`}
-                  className="p-4 border border-gray-200 rounded-lg hover:border-primary-300 hover:shadow-md transition-all group"
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center space-x-3">
-                      <div
-                        className="w-4 h-4 rounded-full"
-                        style={{ backgroundColor: subject.color }}
-                      ></div>
-                      <h3 className="font-medium text-gray-900 group-hover:text-primary-600">
-                        {subject.name}
-                      </h3>
+              {subjects.map((subject, index) => {
+                const total = Number(subject.totalPages) || 0;
+                const read = Number(subject.readPages) || 0;
+                const subjectProgress =
+                  total > 0 ? Math.round((read / total) * 100) : 0;
+                const subjectId = subject.subjectId || subject.id;
+
+                return (
+                  <Link
+                    key={`${subjectId || "sub"}-${index}`}
+                    to={`/subject/${subjectId}`}
+                    className="p-4 border border-gray-200 rounded-lg hover:border-primary-300 hover:shadow-md transition-all group"
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center space-x-3">
+                        <div
+                          className="w-4 h-4 rounded-full"
+                          style={{ backgroundColor: subject.color }}
+                        ></div>
+                        <h3 className="font-medium text-gray-900 group-hover:text-primary-600">
+                          {subject.name}
+                        </h3>
+                      </div>
+                      <Play
+                        size={16}
+                        className="text-gray-400 group-hover:text-primary-500"
+                      />
                     </div>
-                    <Play
-                      size={16}
-                      className="text-gray-400 group-hover:text-primary-500"
-                    />
-                  </div>
-                  <p className="text-sm text-gray-600 mb-3">
-                    {subject.description}
-                  </p>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-500">
-                      {subject.completedPdfs}/{subject.totalPdfs} PDFs
-                    </span>
-                    <span className="text-gray-500">
-                      {Math.round(
-                        (subject.readPages / subject.totalPages) * 100,
-                      )}
-                      % complete
-                    </span>
-                  </div>
-                  <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className="h-2 rounded-full transition-all"
-                      style={{
-                        width: `${
-                          (subject.readPages / subject.totalPages) * 100
-                        }%`,
-                        backgroundColor: subject.color,
-                      }}
-                    ></div>
-                  </div>
-                </Link>
-              ))}
+                    <p className="text-sm text-gray-600 mb-3">
+                      {subject.description}
+                    </p>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-500">
+                        {subject.completedPdfs}/{subject.totalPdfs} PDFs
+                      </span>
+                      <span className="text-gray-500">
+                        {subjectProgress}% complete
+                      </span>
+                    </div>
+                    <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
+                      <div
+                        className="h-2 rounded-full transition-all"
+                        style={{
+                          width: `${subjectProgress}%`,
+                          backgroundColor: subject.color,
+                        }}
+                      ></div>
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -221,7 +234,7 @@ const Dashboard = () => {
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <button
-            onClick={() => setShowUploadModal(true)}
+            onClick={() => openUploadForm(true)}
             className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-all group"
           >
             <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center group-hover:bg-primary-200">
@@ -260,11 +273,6 @@ const Dashboard = () => {
           </Link>
         </div>
       </div>
-
-      <PdfUpload
-        isOpen={showUploadModal}
-        onClose={() => setShowUploadModal(false)}
-      />
     </div>
   );
 };

@@ -16,7 +16,7 @@ const Layout = () => {
         className={`flex-1 flex flex-col overflow-hidden ${sidebarOpen ? "ml-64" : "ml-16"} transition-all duration-300`}
       >
         <Header />
-        <main className="flex-1 overflow-auto p-6 custom-scrollbar">
+        <main className="flex-1 overflow-auto p-2 pt-0 custom-scrollbar">
           <Outlet />
         </main>
       </div>

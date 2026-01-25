@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
@@ -13,7 +13,8 @@ import ConfirmationDialog from "../Layout/ConfirmationDialog";
 
 const SubjectView = () => {
   const { subjectId } = useParams();
-  const { subjects, deletePdf, openUploadForm, getSubjectDetails } = useApp();
+  const { deletePdf, openUploadForm, getSubjectDetails, subjectUpdateTrigger } =
+    useApp();
 
   const navigate = useNavigate();
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -21,42 +22,76 @@ const SubjectView = () => {
   const [subjectDetails, setSubjectDetails] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // This is still useful for properties not in the API response, like color.
-  const subjectFromList = subjects.find((s) => String(s.id) === subjectId);
-
-  useEffect(() => {
-    const fetchDetails = async () => {
-      setLoading(true);
-      if (subjectId) {
-        const { success, data } = await getSubjectDetails(subjectId);
-        if (success) {
-          setSubjectDetails(data);
-        } else {
-          setSubjectDetails(null);
-        }
-      }
-      setLoading(false);
-    };
-    fetchDetails();
-  }, [subjectId, getSubjectDetails]);
-
-  const handleDelete = (pdfId) => {
-    setPdfToDelete(pdfId);
-    setShowConfirmation(true);
-  };
-
-  const confirmDelete = async () => {
-    if (pdfToDelete) {
-      await deletePdf(pdfToDelete);
-      // Refetch details after deletion
+  const fetchSubDetailsById = useCallback(async () => {
+    setLoading(true);
+    if (subjectId) {
       const { success, data } = await getSubjectDetails(subjectId);
       if (success) {
         setSubjectDetails(data);
+      } else {
+        setSubjectDetails(null);
       }
-      setPdfToDelete(null);
+    }
+    setLoading(false);
+  }, [subjectId, getSubjectDetails]);
+
+  useEffect(() => {
+    fetchSubDetailsById();
+  }, [fetchSubDetailsById, subjectUpdateTrigger]);
+
+  const handleDelete = useCallback((pdfId) => {
+    setPdfToDelete(pdfId);
+    setShowConfirmation(true);
+  }, []);
+
+  const confirmDelete = useCallback(async () => {
+    if (pdfToDelete) {
+      const { success } = await deletePdf(pdfToDelete, subjectId);
+      if (success) {
+        fetchSubDetailsById();
+        setPdfToDelete(null);
+      }
     }
     setShowConfirmation(false);
-  };
+  }, [pdfToDelete, subjectId, deletePdf, fetchSubDetailsById]);
+
+  const {
+    pdfs,
+    totalPdfs,
+    totalPages,
+    completedPdfs,
+    readPages,
+    overallProgress,
+  } = useMemo(() => {
+    const files = subjectDetails?.files || [];
+    const totalPdfs = files.length;
+    const totalPages = files.reduce(
+      (sum, file) => sum + (Number(file.page_count) || 0),
+      0,
+    );
+    const completedPdfs = files.filter(
+      (file) => file.read_percentage === 100,
+    ).length;
+    const readPages = Math.round(
+      files.reduce(
+        (sum, file) =>
+          sum +
+          (Number(file.page_count) || 0) *
+            ((Number(file.read_percentage) || 0) / 100),
+        0,
+      ),
+    );
+    const overallProgress = totalPages > 0 ? (readPages / totalPages) * 100 : 0;
+
+    return {
+      pdfs: files,
+      totalPdfs,
+      totalPages,
+      completedPdfs,
+      readPages,
+      overallProgress,
+    };
+  }, [subjectDetails]);
 
   if (loading) {
     return (
@@ -79,24 +114,6 @@ const SubjectView = () => {
       </div>
     );
   }
-
-  // New calculations based on subjectDetails
-  const pdfs = subjectDetails?.files || [];
-  const totalPdfs = pdfs.length;
-  const totalPages = pdfs.reduce(
-    (sum, file) => sum + (file.page_count || 0),
-    0,
-  );
-  const completedPdfs = pdfs.filter(
-    (file) => file.read_percentage === 100,
-  ).length;
-  const readPages = Math.round(
-    pdfs.reduce(
-      (sum, file) => sum + file.page_count * (file.read_percentage / 100),
-      0,
-    ),
-  );
-  const overallProgress = totalPages > 0 ? (readPages / totalPages) * 100 : 0;
 
   return (
     <div className="space-y-6">
@@ -171,7 +188,6 @@ const SubjectView = () => {
             className="h-3 rounded-full transition-all"
             style={{
               width: `${overallProgress}%`,
-              backgroundColor: subjectFromList?.color || "#4f46e5",
             }}
           ></div>
         </div>
@@ -202,14 +218,14 @@ const SubjectView = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {pdfs.map((pdf) => (
+              {pdfs.map((pdf, index) => (
                 <div
-                  key={pdf.id}
+                  key={`${pdf.pdfId || pdf.id || "pdf"}-${index}`}
                   className="group border border-gray-200 rounded-lg p-4 hover:border-primary-300 hover:shadow-md transition-all"
                 >
                   <div className="flex items-start space-x-3">
                     <Link
-                      to={`/pdf/${pdf.id}`}
+                      to={`/pdf/${pdf.pdfId || pdf.id}`}
                       state={{ pdf }}
                       className="flex-1 min-w-0"
                     >
@@ -233,8 +249,6 @@ const SubjectView = () => {
                               className="h-2 rounded-full transition-all"
                               style={{
                                 width: `${pdf.read_percentage}%`,
-                                backgroundColor:
-                                  subjectFromList?.color || "#4f46e5",
                               }}
                             ></div>
                           </div>
@@ -242,7 +256,7 @@ const SubjectView = () => {
                       </div>
                     </Link>
                     <button
-                      onClick={() => handleDelete(pdf.id)}
+                      onClick={() => handleDelete(pdf.pdfId || pdf.id)}
                       className="p-2 text-gray-500 hover:text-red-500"
                     >
                       <Trash2 size={18} />

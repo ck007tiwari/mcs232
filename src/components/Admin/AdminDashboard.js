@@ -1,11 +1,27 @@
-import React, { useState } from 'react';
-import { Users, FileText, MessageCircle, Shield, Trash2, Upload, Globe, Lock } from 'lucide-react';
-import { toast } from 'react-toastify';
-import { useApp } from '../../context/AppContext';
-import PdfUpload from '../PDF/PdfUpload';
+import React, { useState } from "react";
+import {
+  Users,
+  FileText,
+  MessageCircle,
+  Shield,
+  Trash2,
+  Upload,
+  Globe,
+  Lock,
+} from "lucide-react";
+import { useApp } from "../../context/AppContext";
 
 const AdminDashboard = () => {
-  const { subjects, pdfs, questions, progress, deletePdf, isAdmin, getAllPdfs } = useApp();
+  const {
+    subjects,
+    pdfs,
+    questions,
+    progress,
+    deletePdf,
+    isAdmin,
+    getAllPdfs,
+    showToast,
+  } = useApp();
   const [showUploadModal, setShowUploadModal] = useState(false);
 
   if (!isAdmin()) {
@@ -13,7 +29,9 @@ const AdminDashboard = () => {
       <div className="text-center py-12">
         <Shield size={48} className="text-gray-400 mx-auto mb-4" />
         <h2 className="text-2xl font-bold text-gray-900">Access Denied</h2>
-        <p className="text-gray-600 mt-2">You need admin privileges to view this page.</p>
+        <p className="text-gray-600 mt-2">
+          You need admin privileges to view this page.
+        </p>
       </div>
     );
   }
@@ -24,45 +42,10 @@ const AdminDashboard = () => {
   const totalSubjects = subjects.length;
 
   const handleDeletePdf = (pdfId, filename) => {
-    // Custom toast for confirmation
-    toast.warning(
-      <div>
-        <p className="font-medium">Delete PDF?</p>
-        <p className="text-sm opacity-90">"{filename}" will be permanently removed.</p>
-        <div className="flex space-x-2 mt-3">
-          <button
-            onClick={() => {
-              const result = deletePdf(pdfId);
-              if (result.success) {
-                toast.dismiss();
-                toast.success('PDF deleted successfully', {
-                  icon: '🗑️'
-                });
-              } else {
-                toast.dismiss();
-                toast.error(result.message, {
-                  icon: '❌'
-                });
-              }
-            }}
-            className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600"
-          >
-            Delete
-          </button>
-          <button
-            onClick={() => toast.dismiss()}
-            className="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600"
-          >
-            Cancel
-          </button>
-        </div>
-      </div>,
-      {
-        autoClose: false,
-        closeButton: false,
-        icon: '⚠️'
-      }
-    );
+    if (window.confirm(`Are you sure you want to delete "${filename}"?`)) {
+      deletePdf(pdfId);
+      showToast("PDF deleted successfully", "success");
+    }
   };
 
   return (
@@ -71,9 +54,11 @@ const AdminDashboard = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
-          <p className="text-gray-600 mt-1">Manage system resources and user content</p>
+          <p className="text-gray-600 mt-1">
+            Manage system resources and user content
+          </p>
         </div>
-        <button 
+        <button
           onClick={() => setShowUploadModal(true)}
           className="flex items-center space-x-2 bg-primary-500 text-white px-4 py-2 rounded-lg hover:bg-primary-600 transition-colors"
         >
@@ -114,7 +99,9 @@ const AdminDashboard = () => {
               <MessageCircle size={24} className="text-purple-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{totalQuestions}</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {totalQuestions}
+              </p>
               <p className="text-sm text-gray-600">Q&A Sessions</p>
             </div>
           </div>
@@ -126,7 +113,9 @@ const AdminDashboard = () => {
               <Shield size={24} className="text-orange-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{totalSubjects}</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {totalSubjects}
+              </p>
               <p className="text-sm text-gray-600">Subjects</p>
             </div>
           </div>
@@ -136,20 +125,35 @@ const AdminDashboard = () => {
       {/* PDF Management */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200">
         <div className="p-6 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">PDF Management</h2>
-          <p className="text-sm text-gray-600">Manage all PDFs across the platform</p>
+          <h2 className="text-lg font-semibold text-gray-900">
+            PDF Management
+          </h2>
+          <p className="text-sm text-gray-600">
+            Manage all PDFs across the platform
+          </p>
         </div>
         <div className="p-6">
           <div className="space-y-4">
-            {pdfs.map((pdf) => {
-              const subject = subjects.find(s => s.subjectId === pdf.subjectId);
-              const pdfProgress = progress.filter(p => p.pdfId === pdf.pdfId);
-              const avgProgress = pdfProgress.length > 0 
-                ? Math.round(pdfProgress.reduce((sum, p) => sum + p.completionPercentage, 0) / pdfProgress.length)
-                : 0;
+            {pdfs.map((pdf, index) => {
+              const subject = subjects.find(
+                (s) => s.subjectId === pdf.subjectId,
+              );
+              const pdfProgress = progress.filter((p) => p.pdfId === pdf.pdfId);
+              const avgProgress =
+                pdfProgress.length > 0
+                  ? Math.round(
+                      pdfProgress.reduce(
+                        (sum, p) => sum + (Number(p.completionPercentage) || 0),
+                        0,
+                      ) / pdfProgress.length,
+                    )
+                  : 0;
 
               return (
-                <div key={pdf.pdfId} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                <div
+                  key={`${pdf.pdfId || pdf.id || "pdf"}-${index}`}
+                  className="flex items-center justify-between p-4 border border-gray-200 rounded-lg"
+                >
                   <div className="flex items-center space-x-4">
                     <img
                       src={pdf.thumbnail}
@@ -158,11 +162,21 @@ const AdminDashboard = () => {
                     />
                     <div>
                       <div className="flex items-center space-x-2">
-                        <h3 className="font-medium text-gray-900">{pdf.filename}</h3>
+                        <h3 className="font-medium text-gray-900">
+                          {pdf.filename}
+                        </h3>
                         {pdf.isPublic ? (
-                          <Globe size={14} className="text-green-500" title="Public Access" />
+                          <Globe
+                            size={14}
+                            className="text-green-500"
+                            title="Public Access"
+                          />
                         ) : (
-                          <Lock size={14} className="text-orange-500" title="Private Access" />
+                          <Lock
+                            size={14}
+                            className="text-orange-500"
+                            title="Private Access"
+                          />
                         )}
                       </div>
                       <div className="flex items-center space-x-4 text-sm text-gray-600 mt-1">
@@ -174,9 +188,17 @@ const AdminDashboard = () => {
                           <span>{subject?.name}</span>
                         </span>
                         <span>{pdf.totalPages} pages</span>
-                        <span>{(pdf.fileSize / (1024 * 1024)).toFixed(1)} MB</span>
+                        <span>
+                          {(pdf.fileSize / (1024 * 1024)).toFixed(1)} MB
+                        </span>
                         <span>Avg Progress: {avgProgress}%</span>
-                        <span className={pdf.isPublic ? "text-green-600 font-medium" : "text-orange-600 font-medium"}>
+                        <span
+                          className={
+                            pdf.isPublic
+                              ? "text-green-600 font-medium"
+                              : "text-orange-600 font-medium"
+                          }
+                        >
                           {pdf.isPublic ? "Public" : "Private"}
                         </span>
                       </div>
@@ -199,23 +221,32 @@ const AdminDashboard = () => {
       {/* Recent Activity */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200">
         <div className="p-6 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">Recent Q&A Activity</h2>
+          <h2 className="text-lg font-semibold text-gray-900">
+            Recent Q&A Activity
+          </h2>
         </div>
         <div className="p-6">
           <div className="space-y-4">
-            {questions.slice(0, 5).map((question) => {
-              const pdf = pdfs.find(p => p.pdfId === question.pdfId);
-              const subject = subjects.find(s => s.subjectId === pdf?.subjectId);
-              
+            {questions.slice(0, 5).map((question, index) => {
+              const pdf = pdfs.find((p) => p.pdfId === question.pdfId);
+              const subject = subjects.find(
+                (s) => s.subjectId === pdf?.subjectId,
+              );
+
               return (
-                <div key={question.questionId} className="p-4 border border-gray-200 rounded-lg">
+                <div
+                  key={`${question.questionId || question.id || "q"}-${index}`}
+                  className="p-4 border border-gray-200 rounded-lg"
+                >
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex items-center space-x-2">
                       <div
                         className="w-3 h-3 rounded-full"
                         style={{ backgroundColor: subject?.color }}
                       ></div>
-                      <span className="font-medium text-gray-900">{pdf?.filename}</span>
+                      <span className="font-medium text-gray-900">
+                        {pdf?.filename}
+                      </span>
                     </div>
                     <span className="text-xs text-gray-500">
                       {new Date(question.timestamp).toLocaleDateString()}
@@ -225,7 +256,8 @@ const AdminDashboard = () => {
                     <strong>Q:</strong> {question.questionText}
                   </p>
                   <p className="text-sm text-gray-600">
-                    Confidence: {Math.round(question.confidenceScore * 100)}% • Page {question.pageContext}
+                    Confidence: {Math.round(question.confidenceScore * 100)}% •
+                    Page {question.pageContext}
                   </p>
                 </div>
               );
@@ -233,11 +265,6 @@ const AdminDashboard = () => {
           </div>
         </div>
       </div>
-
-      <PdfUpload 
-        isOpen={showUploadModal} 
-        onClose={() => setShowUploadModal(false)} 
-      />
     </div>
   );
 };

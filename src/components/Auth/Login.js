@@ -6,7 +6,7 @@ import { useApp } from "../../context/AppContext";
 const Login = () => {
   const [formData, setFormData] = useState({
     email: "admin@example.com",
-    password: "securepassword123",
+    password: "admin123",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);

@@ -18,8 +18,7 @@ import { useApp } from "../../context/AppContext";
 import { useNavigate } from "react-router-dom";
 
 const Profile = () => {
-  const { user, subjects, progress, updateProfile, changePassword, showToast } =
-    useApp();
+  const { user, subjects, updateProfile, changePassword, showToast } = useApp();
   const [isEditing, setIsEditing] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -42,18 +41,16 @@ const Profile = () => {
     console.log("user", user);
   }, [user]);
   // Calculate stats
-  const totalPdfs = subjects.reduce(
+  const totalPdfs = subjects?.reduce(
     (sum, subject) => sum + subject.totalPdfs,
     0,
   );
-  const completedPdfs = subjects.reduce(
+  const completedPdfs = subjects?.reduce(
     (sum, subject) => sum + subject.completedPdfs,
     0,
   );
-  const totalHours = Math.round(
-    progress.reduce((sum, p) => sum + p.totalTimeSpent, 0) / 3600,
-  );
-  const totalPages = subjects.reduce(
+  const totalHours = 4;
+  const totalPages = subjects?.reduce(
     (sum, subject) => sum + subject.readPages,
     0,
   );
