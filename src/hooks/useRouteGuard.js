@@ -42,7 +42,7 @@ export const useRouteGuard = () => {
     if (isProtectedRoute && !isAuthenticated) {
       // Unauthenticated user trying to access protected route
       navigate("/login", { replace: true });
-    } else if (isAdminRoute && (!isAuthenticated || !isAdmin())) {
+    } else if (isAdminRoute && (!isAuthenticated || !isAdmin)) {
       // Non-admin user trying to access admin route
       if (!isAuthenticated) {
         navigate("/login", { replace: true });
@@ -57,7 +57,7 @@ export const useRouteGuard = () => {
 
   return {
     isAuthenticated,
-    isAdmin: isAdmin(),
+    isAdmin: isAdmin,
     user,
     currentPath: location.pathname,
   };
@@ -95,7 +95,7 @@ export const useCanAccess = (routePath) => {
 
     // Admin routes (require admin role)
     if (path.startsWith("/admin")) {
-      return isAuthenticated && isAdmin();
+      return isAuthenticated && isAdmin;
     }
 
     return false;

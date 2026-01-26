@@ -32,7 +32,7 @@ const AdminRoute = ({ children }) => {
     return <Navigate to="/login" replace />;
   }
 
-  if (!isAdmin()) {
+  if (!isAdmin) {
     return <Navigate to="/unauthorized" replace />;
   }
 
@@ -42,7 +42,7 @@ const AdminRoute = ({ children }) => {
 const AuthRoute = ({ children }) => {
   const { isAuthenticated, isAdmin } = useApp();
   if (isAuthenticated) {
-    return <Navigate to={isAdmin() ? "/admin" : "/dashboard"} replace />;
+    return <Navigate to={isAdmin ? "/admin" : "/dashboard"} replace />;
   }
   return children;
 };

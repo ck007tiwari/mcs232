@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import {
   User,
   Mail,
@@ -21,6 +21,7 @@ const Profile = () => {
   const { user, subjects, updateProfile, changePassword, showToast } = useApp();
   const [isEditing, setIsEditing] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [imgError, setImgError] = useState(false);
   const [formData, setFormData] = useState({
     name: user?.name || "",
     email: user?.email || "",
@@ -40,20 +41,62 @@ const Profile = () => {
   useEffect(() => {
     console.log("user", user);
   }, [user]);
-  // Calculate stats
-  const totalPdfs = subjects?.reduce(
-    (sum, subject) => sum + subject.totalPdfs,
-    0,
-  );
-  const completedPdfs = subjects?.reduce(
-    (sum, subject) => sum + subject.completedPdfs,
-    0,
-  );
-  const totalHours = 4;
-  const totalPages = subjects?.reduce(
-    (sum, subject) => sum + subject.readPages,
-    0,
-  );
+
+  useEffect(() => {
+    setImgError(false);
+  }, [user?.avatar]);
+
+  // Calculate stats per subject
+  const subjectStats = useMemo(() => {
+    if (!subjects) return [];
+    return subjects.map((subject) => {
+      const files = subject.files || [];
+      const totalPdfs = files.length;
+      const completedPdfs = files.filter(
+        (f) => Number(f.read_percentage) === 100,
+      ).length;
+      const readPages = files.reduce(
+        (acc, f) => acc + (Number(f.pages_read) || 0),
+        0,
+      );
+      const totalPages = files.reduce(
+        (acc, f) => acc + (Number(f.page_count) || 0),
+        0,
+      );
+      const timeSpent = files.reduce(
+        (acc, f) => acc + (Number(f.total_time_spent) || 0),
+        0,
+      );
+
+      return {
+        ...subject,
+        calculatedStats: {
+          totalPdfs,
+          completedPdfs,
+          readPages,
+          totalPages,
+          timeSpent,
+          progress: totalPages > 0 ? (readPages / totalPages) * 100 : 0,
+        },
+      };
+    });
+  }, [subjects]);
+
+  // Calculate global stats
+  const globalStats = useMemo(() => {
+    return subjectStats.reduce(
+      (acc, subject) => {
+        const stats = subject.calculatedStats;
+        return {
+          totalPdfs: acc.totalPdfs + stats.totalPdfs,
+          completedPdfs: acc.completedPdfs + stats.completedPdfs,
+          readPages: acc.readPages + stats.readPages,
+          timeSpent: acc.timeSpent + stats.timeSpent,
+        };
+      },
+      { totalPdfs: 0, completedPdfs: 0, readPages: 0, timeSpent: 0 },
+    );
+  }, [subjectStats]);
 
   const handleSave = () => {
     updateProfile(formData.email, formData.name);
@@ -132,18 +175,33 @@ const Profile = () => {
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div className="bg-gradient-to-r from-primary-500 to-primary-600 px-6 py-8">
           <div className="flex items-center space-x-4">
-            <img
-              src={user?.avatar}
-              alt={user?.name}
-              className="w-20 h-20 rounded-full border-4 border-white"
-            />
+            {user?.avatar && !imgError ? (
+              <img
+                src={user?.avatar}
+                alt={user?.name}
+                className="w-20 h-20 rounded-full border-4 border-white object-cover"
+                onError={() => setImgError(true)}
+              />
+            ) : (
+              <div className="w-20 h-20 rounded-full border-4 border-white bg-white/20 flex items-center justify-center text-white">
+                {user?.name ? (
+                  <span className="text-3xl font-bold">
+                    {user.name.charAt(0).toUpperCase()}
+                  </span>
+                ) : (
+                  <User size={40} />
+                )}
+              </div>
+            )}
             <div className="text-white">
               <h2 className="text-2xl font-bold">{user?.name}</h2>
               <p className="text-primary-100">{user?.email}</p>
               <p className="text-primary-100 text-sm mt-1">
                 Member since:{" "}
-                {user?.createdAt
-                  ? new Date(user?.createdAt).toLocaleDateString()
+                {user?.created_at || user?.createdAt
+                  ? new Date(
+                      user?.created_at || user?.createdAt,
+                    ).toLocaleDateString()
                   : "Not available"}
               </p>
             </div>
@@ -396,7 +454,9 @@ const Profile = () => {
               <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
                 <BookOpen size={24} className="text-blue-600" />
               </div>
-              <p className="text-2xl font-bold text-gray-900">{totalPdfs}</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {globalStats.totalPdfs}
+              </p>
               <p className="text-sm text-gray-600">Total PDFs</p>
             </div>
 
@@ -405,7 +465,7 @@ const Profile = () => {
                 <Trophy size={24} className="text-green-600" />
               </div>
               <p className="text-2xl font-bold text-gray-900">
-                {completedPdfs}
+                {globalStats.completedPdfs}
               </p>
               <p className="text-sm text-gray-600">Completed</p>
             </div>
@@ -414,7 +474,9 @@ const Profile = () => {
               <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
                 <Clock size={24} className="text-purple-600" />
               </div>
-              <p className="text-2xl font-bold text-gray-900">{totalHours}</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {Math.round(globalStats.timeSpent / 60)}
+              </p>
               <p className="text-sm text-gray-600">Hours Studied</p>
             </div>
 
@@ -422,7 +484,9 @@ const Profile = () => {
               <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-3">
                 <BookOpen size={24} className="text-orange-600" />
               </div>
-              <p className="text-2xl font-bold text-gray-900">{totalPages}</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {globalStats.readPages}
+              </p>
               <p className="text-sm text-gray-600">Pages Read</p>
             </div>
           </div>
@@ -438,39 +502,39 @@ const Profile = () => {
         </div>
         <div className="p-6">
           <div className="space-y-4">
-            {subjects.map((subject) => {
-              const progress = (subject.readPages / subject.totalPages) * 100;
+            {subjectStats.map((subject) => {
+              const stats = subject.calculatedStats;
               return (
-                <div key={subject.subjectId}>
+                <div key={subject.id || subject.subjectId}>
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center space-x-3">
                       <div
                         className="w-4 h-4 rounded-full"
-                        style={{ backgroundColor: subject.color }}
+                        style={{ backgroundColor: subject.color || "#4f46e5" }}
                       ></div>
                       <span className="font-medium text-gray-900">
                         {subject.name}
                       </span>
                     </div>
                     <span className="text-sm text-gray-600">
-                      {Math.round(progress)}%
+                      {Math.round(stats.progress)}%
                     </span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div
                       className="h-2 rounded-full transition-all"
                       style={{
-                        width: `${progress}%`,
-                        backgroundColor: subject.color,
+                        width: `${stats.progress}%`,
+                        backgroundColor: subject.color || "#4f46e5",
                       }}
                     ></div>
                   </div>
                   <div className="flex justify-between text-xs text-gray-500 mt-1">
                     <span>
-                      {subject.completedPdfs}/{subject.totalPdfs} PDFs
+                      {stats.completedPdfs}/{stats.totalPdfs} PDFs
                     </span>
                     <span>
-                      {subject.readPages}/{subject.totalPages} pages
+                      {stats.readPages}/{stats.totalPages} pages
                     </span>
                   </div>
                 </div>

@@ -33,7 +33,7 @@ const Navigation = ({ children }) => {
 
     // Admin routes require admin role
     if (routePath.startsWith("/admin")) {
-      return isAuthenticated && isAdmin();
+      return isAuthenticated && isAdmin;
     }
 
     return false;

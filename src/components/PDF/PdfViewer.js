@@ -119,7 +119,7 @@ const PdfViewer = () => {
       updateProgress(pdfId, newProgress);
     };
 
-    saveTimeoutRef.current = setTimeout(saveProgress, 5000);
+    saveTimeoutRef.current = setTimeout(saveProgress, 2000); // 2 seconds
 
     return () => {
       if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);

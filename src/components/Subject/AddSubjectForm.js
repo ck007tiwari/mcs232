@@ -59,7 +59,7 @@ const AddSubjectForm = ({ subject, onClose }) => {
       result = await addSubject(payload);
     }
 
-    if (result.success) {
+    if (result?.success) {
       showToast(
         isEditMode
           ? "Subject updated successfully!"
@@ -67,8 +67,6 @@ const AddSubjectForm = ({ subject, onClose }) => {
         "success",
       );
       handleClose();
-    } else {
-      showToast(result.message, "error");
     }
     setIsSubmitting(false);
   };

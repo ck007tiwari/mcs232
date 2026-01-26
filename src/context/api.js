@@ -25,6 +25,13 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
+    if (
+      originalRequest.url.includes("/users/login/") ||
+      originalRequest.url.includes("/users/register/")
+    ) {
+      return Promise.reject(error);
+    }
+
     // Check if the error is 401 and we haven't retried yet
     if (
       error.response &&

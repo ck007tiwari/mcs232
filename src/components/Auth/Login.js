@@ -10,17 +10,21 @@ const Login = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const { login, showToast } = useApp();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setError(null);
 
-    const success = await login(formData.email, formData.password);
+    const { success, message } = await login(formData.email, formData.password);
+
     if (success) {
       showToast("Login successful", "success");
     } else {
-      showToast("Invalid username or password", "error");
+      setError(message);
+      showToast(message, "error");
     }
     setLoading(false);
   };
@@ -59,7 +63,9 @@ const Login = () => {
                 value={formData.email}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors ${
+                  error ? "border-red-500" : "border-gray-300"
+                }`}
                 placeholder="Enter your email"
               />
             </div>
@@ -79,7 +85,9 @@ const Login = () => {
                   value={formData.password}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+                  className={`w-full px-4 py-3 pr-12 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors ${
+                    error ? "border-red-500" : "border-gray-300"
+                  }`}
                   placeholder="Enter your password"
                 />
                 <button
@@ -135,7 +143,7 @@ const Login = () => {
               <br />
               Email: admin@example.com
               <br />
-              Password: securepassword123
+              Password: admin123
             </p>
           </div>
         </div>

@@ -59,6 +59,8 @@ export const AppProvider = ({ children }) => {
     type: "info",
   });
   const [subjectUpdateTrigger, setSubjectUpdateTrigger] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [allUsers, setAllUsers] = useState([]);
 
   const showToast = useCallback((message, type = "info") => {
     setToast({ show: true, message, type });
@@ -104,11 +106,28 @@ export const AppProvider = ({ children }) => {
     }
   }, [isAuthenticated]);
 
+  const getAllUsers = useCallback(async () => {
+    if (user?.role === "admin") {
+      try {
+        const { data } = await api.get("/users/");
+        setAllUsers(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+    }
+  }, [user]);
+
   useEffect(() => {
     if (isAuthenticated && fetchSubjects) {
       fetchSubjects();
     }
   }, [fetchSubjects, isAuthenticated]);
+
+  useEffect(() => {
+    if (isAuthenticated && user?.role === "admin") {
+      getAllUsers();
+    }
+  }, [isAuthenticated, user, getAllUsers]);
 
   //signup function
   const signup = useCallback(async (user) => {
@@ -159,14 +178,20 @@ export const AppProvider = ({ children }) => {
         localStorage.setItem("token", data.access);
         localStorage.setItem("refresh", data.refresh);
         setIsAuthenticated(true);
-        return true;
+        return { success: true };
       } catch (error) {
         console.error("Login failed:", error);
         setIsAuthenticated(false);
-        return false;
+        return {
+          success: false,
+          message:
+            error.response?.data?.detail ||
+            error.response?.data?.message ||
+            "Invalid email or password",
+        };
       }
     }
-    return false;
+    return { success: false, message: "Email and password are required" };
   }, []);
 
   // update user profile email and name function
@@ -245,8 +270,8 @@ export const AppProvider = ({ children }) => {
   const editSubject = useCallback(
     async (subjectId, updatedSubject) => {
       try {
-        const { data, status } = await updateSubject(subjectId, updatedSubject);
-        if (status !== 201) {
+        const { status } = await updateSubject(subjectId, updatedSubject);
+        if (status !== 200) {
           return showToast("Failed to update subject", "error");
         }
         fetchSubjects();
@@ -322,6 +347,7 @@ export const AppProvider = ({ children }) => {
           return showToast("Failed to delete PDF", "error");
         }
         showToast("PDF deleted successfully", "success");
+        fetchSubjects();
         return { success: true };
       } catch (error) {
         console.error("Error deleting PDF:", error);
@@ -333,6 +359,42 @@ export const AppProvider = ({ children }) => {
     },
     [fetchSubjects, showToast],
   );
+
+  const deleteUser = useCallback(
+    async (userId) => {
+      try {
+        await api.delete(`/users/${userId}/`);
+        showToast("User deleted successfully", "success");
+        getAllUsers();
+        return { success: true };
+      } catch (error) {
+        console.error("Error deleting user:", error);
+        showToast("Failed to delete user", "error");
+        return { success: false };
+      }
+    },
+    [getAllUsers, showToast],
+  );
+
+  const getUserStats = useCallback(async (userId) => {
+    try {
+      // Placeholder for API call:
+      // const { data } = await api.get(`/users/${userId}/stats/`);
+      // return data;
+
+      // Simulating API response
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      return {
+        documentCount: Math.floor(Math.random() * 15),
+        totalPageCount: Math.floor(Math.random() * 500),
+        subjectCount: Math.floor(Math.random() * 5) + 1,
+        storageUsed: (Math.random() * 50).toFixed(2) + " MB",
+      };
+    } catch (error) {
+      console.error("Error fetching user stats:", error);
+      return null;
+    }
+  }, []);
 
   // Progress functions
   const updateProgress = useCallback(async (pdfId, newProgress) => {
@@ -411,6 +473,9 @@ export const AppProvider = ({ children }) => {
       uploadSubjectId,
       toast,
       subjectUpdateTrigger,
+      searchQuery,
+      setSearchQuery,
+      allUsers,
       //files
       uploadPdf,
 
@@ -440,6 +505,9 @@ export const AppProvider = ({ children }) => {
       deleteSubject,
       deletePdf,
       updateProgress,
+      getAllUsers,
+      deleteUser,
+      getUserStats,
       getFileProgress,
       askQuestion,
     }),
@@ -458,7 +526,9 @@ export const AppProvider = ({ children }) => {
       uploadSubjectId,
       toast,
       subjectUpdateTrigger,
+      searchQuery,
       uploadPdf,
+      allUsers,
       setCurrentPdf,
       setSidebarOpen,
       login,
@@ -480,6 +550,9 @@ export const AppProvider = ({ children }) => {
       askQuestion,
       getFileProgress,
       deletePdf,
+      getAllUsers,
+      deleteUser,
+      getUserStats,
     ],
   );
 

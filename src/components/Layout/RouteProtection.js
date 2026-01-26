@@ -17,7 +17,7 @@ const RouteProtection = ({ children }) => {
     // Log route access for debugging (only in development)
     if (process.env.NODE_ENV === "development") {
       console.log(
-        `🛡️ Route Guard: ${currentPath} | Auth: ${isAuthenticated} | Admin: ${isAdmin()}`,
+        `🛡️ Route Guard: ${currentPath} | Auth: ${isAuthenticated} | Admin: ${isAdmin}`,
       );
     }
 
@@ -61,7 +61,7 @@ const RouteProtection = ({ children }) => {
       return;
     }
 
-    if (isAdminRoute && isAuthenticated && !isAdmin()) {
+    if (isAdminRoute && isAuthenticated && !isAdmin) {
       // Redirect non-admin users away from admin pages
       navigate("/dashboard", { replace: true });
       return;

@@ -72,14 +72,9 @@ const SubjectView = () => {
     const completedPdfs = files.filter(
       (file) => file.read_percentage === 100,
     ).length;
-    const readPages = Math.round(
-      files.reduce(
-        (sum, file) =>
-          sum +
-          (Number(file.page_count) || 0) *
-            ((Number(file.read_percentage) || 0) / 100),
-        0,
-      ),
+    const readPages = files.reduce(
+      (sum, file) => sum + (Number(file.pages_read) || 0),
+      0,
     );
     const overallProgress = totalPages > 0 ? (readPages / totalPages) * 100 : 0;
 
@@ -115,10 +110,12 @@ const SubjectView = () => {
     );
   }
 
+  const subjectColor = subjectDetails.color || "#4f46e5";
+
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center space-x-4 justify-between">
+      <div className="flex items-center space-x-4 justify-between pt-4">
         <div className="flex items-center space-x-3">
           <button
             onClick={() => navigate(-1)}
@@ -188,6 +185,7 @@ const SubjectView = () => {
             className="h-3 rounded-full transition-all"
             style={{
               width: `${overallProgress}%`,
+              backgroundColor: subjectColor,
             }}
           ></div>
         </div>
@@ -249,6 +247,7 @@ const SubjectView = () => {
                               className="h-2 rounded-full transition-all"
                               style={{
                                 width: `${pdf.read_percentage}%`,
+                                backgroundColor: subjectColor,
                               }}
                             ></div>
                           </div>
