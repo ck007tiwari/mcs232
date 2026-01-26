@@ -19,7 +19,6 @@ const SubjectListPage = () => {
   const closeEditForm = () => {
     setEditingSubject(null);
   };
-  console.log("subjects", subjects);
 
   const handleDeleteClick = (subjectId) => {
     setSubjectToDelete(subjectId);

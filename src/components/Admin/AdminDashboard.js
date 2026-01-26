@@ -13,6 +13,7 @@ import {
   Loader,
 } from "lucide-react";
 import { useApp } from "../../context/AppContext";
+import ConfirmationDialog from "../Layout/ConfirmationDialog";
 import { useNavigate } from "react-router-dom";
 
 const AdminDashboard = () => {
@@ -22,6 +23,8 @@ const AdminDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [expandedUsers, setExpandedUsers] = useState({});
   const [loadingExpanded, setLoadingExpanded] = useState({});
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
 
   if (!isAdmin) {
     return (
@@ -72,9 +75,16 @@ const AdminDashboard = () => {
     );
   }, [allUsers, searchTerm]);
 
-  const handleDeleteUser = async (userId, userName) => {
-    if (window.confirm(`Are you sure you want to delete user "${userName}"?`)) {
-      await deleteUser(userId);
+  const handleDeleteUser = (userId, userName) => {
+    setUserToDelete({ id: userId, name: userName });
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDeleteUser = async () => {
+    if (userToDelete) {
+      await deleteUser(userToDelete.id);
+      setUserToDelete(null);
+      setShowDeleteConfirm(false);
     }
   };
 
@@ -306,46 +316,101 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        {/* Recent Activity (Right 1/3) */}
+        {/* Right Column: Recent Uploads & System Status */}
         <div className="space-y-6">
+          {/* Recent Uploads */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             <div className="p-6 border-b border-gray-200">
               <h2 className="text-lg font-semibold text-gray-900">
-                Recent Q&A
+                Recent Uploads
               </h2>
             </div>
             <div className="divide-y divide-gray-200">
-              {questions.length > 0 ? (
-                questions.slice(0, 5).map((q, idx) => (
+              {allPdfs.length > 0 ? (
+                allPdfs.slice(0, 5).map((pdf, idx) => (
                   <div
-                    key={q.questionId || idx}
+                    key={pdf.id || idx}
                     className="p-4 hover:bg-gray-50 transition-colors"
                   >
-                    <p className="text-sm font-medium text-gray-900 line-clamp-2 mb-1">
-                      "{q.questionText}"
-                    </p>
-                    <div className="flex items-center justify-between text-xs text-gray-500 mt-2">
-                      <span>
-                        Confidence: {Math.round(q.confidenceScore * 100)}%
-                      </span>
-                      <span>{new Date(q.timestamp).toLocaleDateString()}</span>
+                    <div className="flex items-start space-x-3">
+                      <div className="p-2 bg-red-50 rounded text-red-600">
+                        <FileText size={16} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900 truncate">
+                          {pdf.title}
+                        </p>
+                        <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
+                          <span
+                            className="px-2 py-0.5 rounded-full"
+                            style={{
+                              backgroundColor: `${pdf.subjectColor}20`,
+                              color: pdf.subjectColor,
+                            }}
+                          >
+                            {pdf.subjectName}
+                          </span>
+                          {pdf.fileSize > 0 && (
+                            <span>
+                              {(pdf.fileSize / 1024 / 1024).toFixed(2)} MB
+                            </span>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 ))
               ) : (
                 <div className="p-6 text-center text-gray-500 text-sm">
-                  No recent questions asked.
+                  No files uploaded yet.
                 </div>
               )}
             </div>
             <div className="p-4 bg-gray-50 border-t border-gray-200 text-center">
               <button className="text-sm text-primary-600 font-medium hover:text-primary-700 flex items-center justify-center mx-auto">
-                View All Activity <ArrowRight size={16} className="ml-1" />
+                View All Files <ArrowRight size={16} className="ml-1" />
               </button>
+            </div>
+          </div>
+
+          {/* System Status Widget */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              System Status
+            </h2>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600">Database</span>
+                <span className="flex items-center text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full">
+                  <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                  Operational
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600">API Server</span>
+                <span className="flex items-center text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full">
+                  <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                  Operational
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600">AI Service</span>
+                <span className="flex items-center text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full">
+                  <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                  Operational
+                </span>
+              </div>
             </div>
           </div>
         </div>
       </div>
+      {showDeleteConfirm && (
+        <ConfirmationDialog
+          message={`Are you sure you want to delete user "${userToDelete?.name}"? This action cannot be undone.`}
+          onConfirm={confirmDeleteUser}
+          onCancel={() => setShowDeleteConfirm(false)}
+        />
+      )}
     </div>
   );
 };

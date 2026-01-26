@@ -19,7 +19,7 @@ const PdfViewer = () => {
   const { pdfId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const { subjects, updateProgress, getFileProgress } = useApp();
+  const { subjects, updateProgress } = useApp();
 
   const [currentPage, setCurrentPage] = useState(location.state?.page || 1);
   const [fetchedProgress, setFetchedProgress] = useState(null);
@@ -29,6 +29,7 @@ const PdfViewer = () => {
   const [numPages, setNumPages] = useState(null);
   const saveTimeoutRef = useRef(null);
   const lastSaveTimeRef = useRef(Date.now());
+  const progressRef = useRef({});
 
   const pdfFromState = location.state?.pdf;
 
@@ -45,31 +46,42 @@ const PdfViewer = () => {
       String(s.subjectId) === String(subjectId),
   );
 
-  const progressRef = useRef({});
-
   useEffect(() => {
-    setFetchedProgress(null);
-    const fetchProgress = async () => {
-      if (pdfId) {
-        const data = await getFileProgress(pdfId);
-        if (data) {
-          const mappedData = {
-            ...data,
-            pagesRead: data.pages_read,
-            lastPageRead: data.last_page_read,
-            totalTimeSpent: data.total_time_spent,
-          };
-          progressRef.current = mappedData;
-          lastSaveTimeRef.current = Date.now();
-          setFetchedProgress(mappedData);
-          if (!location.state?.page && mappedData.lastPageRead) {
-            setCurrentPage(Number(mappedData.lastPageRead));
-          }
+    if (subject && pdfId) {
+      const subjectProgress = subject.files || [];
+      const currentFile = subjectProgress.find(
+        (f) => String(f.id) === String(pdfId),
+      );
+
+      if (currentFile) {
+        const progressData = {
+          pagesRead: currentFile.pages_read || 0,
+          lastPageRead: currentFile.last_page_read || 1,
+          visitedPages: currentFile.visited_pages || [],
+          completionPercentage: currentFile.read_percentage || 0,
+          lastAccessed: currentFile.last_accessed,
+          totalTimeSpent: currentFile.total_time_spent || 0,
+        };
+        setFetchedProgress(progressData);
+        progressRef.current = progressData;
+
+        if (currentFile.last_page_read) {
+          setCurrentPage(currentFile.last_page_read);
         }
+      } else {
+        const defaultProgress = {
+          pagesRead: 0,
+          lastPageRead: 1,
+          visitedPages: [],
+          completionPercentage: 0,
+          lastAccessed: new Date().toISOString(),
+          totalTimeSpent: 0,
+        };
+        setFetchedProgress(defaultProgress);
+        progressRef.current = defaultProgress;
       }
-    };
-    fetchProgress();
-  }, [pdfId, getFileProgress, location.state]);
+    }
+  }, [pdfId, subject]);
 
   const onDocumentLoadSuccess = ({ numPages }) => {
     setNumPages(numPages);

@@ -399,11 +399,12 @@ export const AppProvider = ({ children }) => {
   // Progress functions
   const updateProgress = useCallback(async (pdfId, newProgress) => {
     try {
-      const { data, status } = await updatePdfProgress(pdfId, newProgress);
+      const { status } = await updatePdfProgress(pdfId, newProgress);
 
       if (status !== 200) {
         return showToast("Failed to update progress", "error");
       }
+      fetchSubjects();
     } catch (error) {
       console.error("Error saving progress:", error);
     }

@@ -3,10 +3,12 @@ import { useApp } from "../../context/AppContext";
 import { X } from "lucide-react";
 
 const AddSubjectForm = ({ subject, onClose }) => {
-  const { closeAddSubjectForm, showToast, addSubject, editSubject } = useApp();
+  const { closeAddSubjectForm, showToast, addSubject, editSubject, isAdmin } =
+    useApp();
   const isEditMode = !!subject;
   const [name, setName] = useState(subject?.name || "");
   const [description, setDescription] = useState(subject?.description || "");
+  const [isPublic, setIsPublic] = useState(subject?.is_public || false);
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -51,6 +53,7 @@ const AddSubjectForm = ({ subject, onClose }) => {
     const payload = {
       name: trimmedName,
       description: description.trim(),
+      is_public: isAdmin ? isPublic : false,
     };
 
     if (isEditMode) {
@@ -153,6 +156,24 @@ const AddSubjectForm = ({ subject, onClose }) => {
               </div>
             </div>
           </div>
+
+          {isAdmin && (
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="isPublic"
+                checked={isPublic}
+                onChange={(e) => setIsPublic(e.target.checked)}
+                className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+              />
+              <label
+                htmlFor="isPublic"
+                className="text-sm font-medium text-gray-700"
+              >
+                Available for all users
+              </label>
+            </div>
+          )}
 
           {/* Actions */}
           <div className="flex gap-3 pt-2">
