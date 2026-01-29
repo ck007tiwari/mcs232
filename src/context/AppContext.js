@@ -8,13 +8,7 @@ import React, {
 } from "react";
 import axios from "axios";
 import api from "./api";
-import {
-  dummySubjects,
-  dummyPdfs,
-  dummyProgress,
-  dummyQuestions,
-  dummyChartData,
-} from "../data/dummyData";
+
 import {
   createSubject,
   getSubjects,
@@ -44,10 +38,8 @@ export const AppProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(
     !!localStorage.getItem("token"),
   );
-  const [subjects, setSubjects] = useState(dummySubjects || []);
-  const [pdfs, setPdfs] = useState([...dummyPdfs]);
-  const [questions, setQuestions] = useState(dummyQuestions || []);
-  const [chartData] = useState(dummyChartData);
+  const [subjects, setSubjects] = useState([]);
+  const [questions, setQuestions] = useState([]);
   const [currentPdf, setCurrentPdf] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isUploadFormOpen, setUploadFormOpen] = useState(false);
@@ -378,20 +370,20 @@ export const AppProvider = ({ children }) => {
 
   const getUserStats = useCallback(async (userId) => {
     try {
-      // Placeholder for API call:
-      // const { data } = await api.get(`/users/${userId}/stats/`);
-      // return data;
-
-      // Simulating API response
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      return {
-        documentCount: Math.floor(Math.random() * 15),
-        totalPageCount: Math.floor(Math.random() * 500),
-        subjectCount: Math.floor(Math.random() * 5) + 1,
-        storageUsed: (Math.random() * 50).toFixed(2) + " MB",
-      };
+      const { data } = await api.get(`/users/${userId}/stats/`);
+      return data;
     } catch (error) {
       console.error("Error fetching user stats:", error);
+      return null;
+    }
+  }, []);
+
+  const getDashboardStats = useCallback(async () => {
+    try {
+      const { data } = await api.get("/users/dashboard/stats/");
+      return data;
+    } catch (error) {
+      console.error("Error fetching dashboard stats:", error);
       return null;
     }
   }, []);
@@ -463,10 +455,8 @@ export const AppProvider = ({ children }) => {
       user,
       isAuthenticated,
       subjects,
-      pdfs,
       isAdmin,
       questions,
-      chartData,
       currentPdf,
       sidebarOpen,
       isUploadFormOpen,
@@ -509,6 +499,7 @@ export const AppProvider = ({ children }) => {
       getAllUsers,
       deleteUser,
       getUserStats,
+      getDashboardStats,
       getFileProgress,
       askQuestion,
     }),
@@ -516,10 +507,8 @@ export const AppProvider = ({ children }) => {
       user,
       isAuthenticated,
       subjects,
-      pdfs,
       isAdmin,
       questions,
-      chartData,
       currentPdf,
       sidebarOpen,
       isUploadFormOpen,

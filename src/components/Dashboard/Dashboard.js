@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import {
   BookOpen,
@@ -10,76 +10,121 @@ import {
   CheckCircle,
   MessageCircle,
   Upload,
+  Loader,
 } from "lucide-react";
 import { useApp } from "../../context/AppContext";
 import ProgressChart from "./ProgressChart";
 import SubjectProgress from "./SubjectProgress";
 
 const Dashboard = () => {
-  const {
-    user,
-    subjects,
-    progress,
-    chartData,
-    isUploadFormOpen,
-    openUploadForm,
-    closeUploadForm,
-  } = useApp();
+  const { user, subjects, openUploadForm, getDashboardStats } = useApp();
+  const [loading, setLoading] = useState(true);
+  const [dashboardStats, setDashboardStats] = useState(null);
+  const [weeklyProgress, setWeeklyProgress] = useState([]);
+  const [subjectProgress, setSubjectProgress] = useState([]);
+  const [maxMinutes, setMaxMinutes] = useState(60);
 
-  // Calculate stats
-  const totalPdfs = subjects?.reduce(
-    (sum, subject) => sum + (Number(subject.totalPdfs) || 0),
-    0,
+  const chartConfig = useMemo(
+    () => ({
+      labels: Array.isArray(weeklyProgress)
+        ? weeklyProgress.map((item) => item.day)
+        : [],
+      datasets: [
+        {
+          label: "Minutes",
+          data: Array.isArray(weeklyProgress)
+            ? weeklyProgress.map((item) => item.minutes)
+            : [],
+          borderColor: "rgb(99, 102, 241)",
+          backgroundColor: "rgba(99, 102, 241, 0.1)",
+          fill: true,
+          tension: 0.4,
+        },
+      ],
+    }),
+    [weeklyProgress],
   );
-  const completedPdfs = subjects?.reduce(
-    (sum, subject) => sum + (Number(subject.completedPdfs) || 0),
-    0,
+
+  const subjectChartConfig = useMemo(
+    () => ({
+      labels: Array.isArray(subjectProgress)
+        ? subjectProgress.map((item) => item.name || item.subject)
+        : [],
+      datasets: [
+        {
+          label: "Progress",
+          data: Array.isArray(subjectProgress)
+            ? subjectProgress.map((item) => item.progress || 0)
+            : [],
+          backgroundColor: Array.isArray(subjectProgress)
+            ? subjectProgress.map((item) => item.color || "#6366f1")
+            : [],
+          borderRadius: 4,
+        },
+      ],
+    }),
+    [subjectProgress],
   );
-  const totalPages = subjects?.reduce(
-    (sum, subject) => sum + (Number(subject.totalPages) || 0),
-    0,
-  );
-  const readPages = subjects?.reduce(
-    (sum, subject) => sum + (Number(subject.readPages) || 0),
-    0,
-  );
-  const totalHours = Math.round(
-    progress?.reduce((sum, p) => sum + (Number(p.totalTimeSpent) || 0), 0) /
-      3600,
-  );
-  const averageProgress =
-    totalPages > 0 ? Math.round((readPages / totalPages) * 100) : 0;
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const stats = await getDashboardStats();
+        if (stats) {
+          setDashboardStats(stats.overview);
+          if (stats.weekly_progress && Array.isArray(stats.weekly_progress)) {
+            setWeeklyProgress(stats.weekly_progress);
+            const maxMinutes = Math.max(
+              0,
+              ...stats.weekly_progress.map((item) => item.minutes || 0),
+            );
+            setMaxMinutes(maxMinutes);
+          } else {
+            setWeeklyProgress([]);
+          }
+          if (stats.subject_progress) {
+            setSubjectProgress(stats.subject_progress);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching dashboard stats:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStats();
+  }, [getDashboardStats]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Loader className="animate-spin text-primary-600" size={48} />
+      </div>
+    );
+  }
 
   const stats = [
     {
       title: "Total PDFs",
-      value: totalPdfs,
-      change: "+12%",
-      changeType: "positive",
+      value: dashboardStats?.total_files || 0,
       icon: BookOpen,
       color: "bg-blue-500",
     },
     {
       title: "Completed",
-      value: completedPdfs,
-      change: "+8%",
-      changeType: "positive",
+      value: dashboardStats?.total_completed_files || 0,
       icon: CheckCircle,
       color: "bg-green-500",
     },
     {
       title: "Study Hours",
-      value: totalHours,
-      change: "+15%",
-      changeType: "positive",
+      value: dashboardStats?.total_hours_read || 0,
       icon: Clock,
       color: "bg-purple-500",
     },
     {
       title: "Progress",
-      value: `${averageProgress}%`,
-      change: "+5%",
-      changeType: "positive",
+      value: `${dashboardStats?.average_progress || 0}%`,
       icon: TrendingUp,
       color: "bg-orange-500",
     },
@@ -95,8 +140,9 @@ const Dashboard = () => {
               Welcome back, {user?.name}!
             </h1>
             <p className="text-primary-100">
-              You've completed {completedPdfs} out of {totalPdfs} PDFs. Keep up
-              the great work!
+              You've completed {dashboardStats?.total_completed_files || 0} out
+              of {dashboardStats?.total_files || 0} PDFs. Keep up the great
+              work!
             </p>
           </div>
           <div className="hidden md:block">
@@ -122,15 +168,17 @@ const Dashboard = () => {
                 <p className="text-2xl font-bold text-gray-900 mt-1">
                   {stat.value}
                 </p>
-                <p
-                  className={`text-sm mt-1 ${
-                    stat.changeType === "positive"
-                      ? "text-green-600"
-                      : "text-red-600"
-                  }`}
-                >
-                  {stat.change} from last week
-                </p>
+                {stat.change && (
+                  <p
+                    className={`text-sm mt-1 ${
+                      stat.changeType === "positive"
+                        ? "text-green-600"
+                        : "text-red-600"
+                    }`}
+                  >
+                    {stat.change} from last week
+                  </p>
+                )}
               </div>
               <div
                 className={`w-12 h-12 ${stat.color} rounded-lg flex items-center justify-center`}
@@ -145,10 +193,11 @@ const Dashboard = () => {
       {/* Charts and Progress */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <ProgressChart
-          data={chartData.weeklyProgress}
+          data={chartConfig}
           title="Weekly Reading Progress"
+          yAxisMax={maxMinutes === 0 ? 60 : undefined}
         />
-        <SubjectProgress data={chartData.subjectProgress} />
+        <SubjectProgress data={subjectChartConfig} />
       </div>
 
       {/* Main Content Grid */}
@@ -172,10 +221,28 @@ const Dashboard = () => {
           <div className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {subjects.map((subject, index) => {
-                const total = Number(subject.totalPages) || 0;
-                const read = Number(subject.readPages) || 0;
+                const files = subject.files || [];
+                const totalPages =
+                  Number(subject.totalPages) ||
+                  files.reduce((acc, f) => acc + (f.page_count || 0), 0);
+                const readPages =
+                  Number(subject.readPages) ||
+                  files.reduce((acc, f) => acc + (f.page_read || 0), 0);
+                const totalPdfs =
+                  subject.totalPdfs || subject.file_count || files.length || 0;
+                const completedPdfs =
+                  subject.completedPdfs ||
+                  files.filter(
+                    (f) => (f.read_percentage === 100),
+                  ).length;
+
+                // here page read means user go the max page of that pdf
+                // actual page read is the length of the visited pages array
+
                 const subjectProgress =
-                  total > 0 ? Math.round((read / total) * 100) : 0;
+                  totalPages > 0
+                    ? Math.round((readPages / totalPages) * 100)
+                    : 0;
                 const subjectId = subject.subjectId || subject.id;
 
                 return (
@@ -204,7 +271,7 @@ const Dashboard = () => {
                     </p>
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-gray-500">
-                        {subject.completedPdfs}/{subject.totalPdfs} PDFs
+                        {completedPdfs}/{totalPdfs} PDFs
                       </span>
                       <span className="text-gray-500">
                         {subjectProgress}% complete

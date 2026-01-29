@@ -73,7 +73,7 @@ const SubjectView = () => {
       (file) => file.read_percentage === 100,
     ).length;
     const readPages = files.reduce(
-      (sum, file) => sum + (Number(file.pages_read) || 0),
+      (sum, file) => sum + (Number(file.page_read) || 0),
       0,
     );
     const overallProgress = totalPages > 0 ? (readPages / totalPages) * 100 : 0;

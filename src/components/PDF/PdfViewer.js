@@ -55,7 +55,8 @@ const PdfViewer = () => {
 
       if (currentFile) {
         const progressData = {
-          pagesRead: currentFile.pages_read || 0,
+          user_max_visited_page: currentFile.user_max_visited_page || 0,
+          page_read: currentFile.page_read || 0,
           lastPageRead: currentFile.last_page_read || 1,
           visitedPages: currentFile.visited_pages || [],
           completionPercentage: currentFile.read_percentage || 0,
@@ -70,7 +71,8 @@ const PdfViewer = () => {
         }
       } else {
         const defaultProgress = {
-          pagesRead: 0,
+          user_max_visited_page: 0,
+          page_read: 0,
           lastPageRead: 1,
           visitedPages: [],
           completionPercentage: 0,
@@ -105,8 +107,8 @@ const PdfViewer = () => {
 
       const currentVisited =
         currentProgress.visitedPages ||
-        (currentProgress.pagesRead
-          ? Array.from({ length: currentProgress.pagesRead }, (_, i) => i + 1)
+        (currentProgress.user_max_visited_page
+          ? Array.from({ length: currentProgress.user_max_visited_page }, (_, i) => i + 1)
           : []);
 
       const updatedVisited = currentVisited.includes(currentPage)
@@ -114,7 +116,7 @@ const PdfViewer = () => {
         : [...currentVisited, currentPage];
 
       const newProgress = {
-        pagesRead: Math.max(currentProgress.pagesRead || 0, currentPage),
+        user_max_visited_page: Math.max(currentProgress.user_max_visited_page || 0, currentPage),
         lastPageRead: currentPage,
         visitedPages: updatedVisited,
         completionPercentage:

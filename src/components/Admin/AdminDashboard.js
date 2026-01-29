@@ -15,6 +15,7 @@ import {
 import { useApp } from "../../context/AppContext";
 import ConfirmationDialog from "../Layout/ConfirmationDialog";
 import { useNavigate } from "react-router-dom";
+import StatsCard from "./StatsCard";
 
 const AdminDashboard = () => {
   const { subjects, questions, isAdmin, allUsers, deleteUser, getUserStats } =
@@ -316,9 +317,8 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        {/* Right Column: Recent Uploads & System Status */}
+        {/* Right Column: Recent Uploads */}
         <div className="space-y-6">
-          {/* Recent Uploads */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             <div className="p-6 border-b border-gray-200">
               <h2 className="text-lg font-semibold text-gray-900">
@@ -367,39 +367,12 @@ const AdminDashboard = () => {
               )}
             </div>
             <div className="p-4 bg-gray-50 border-t border-gray-200 text-center">
-              <button className="text-sm text-primary-600 font-medium hover:text-primary-700 flex items-center justify-center mx-auto">
+              <button
+                onClick={() => navigate("/subjects")}
+                className="text-sm text-primary-600 font-medium hover:text-primary-700 flex items-center justify-center mx-auto"
+              >
                 View All Files <ArrowRight size={16} className="ml-1" />
               </button>
-            </div>
-          </div>
-
-          {/* System Status Widget */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
-              System Status
-            </h2>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Database</span>
-                <span className="flex items-center text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full">
-                  <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                  Operational
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">API Server</span>
-                <span className="flex items-center text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full">
-                  <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                  Operational
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">AI Service</span>
-                <span className="flex items-center text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full">
-                  <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                  Operational
-                </span>
-              </div>
             </div>
           </div>
         </div>
@@ -411,29 +384,6 @@ const AdminDashboard = () => {
           onCancel={() => setShowDeleteConfirm(false)}
         />
       )}
-    </div>
-  );
-};
-
-const StatsCard = ({ icon: Icon, label, value, color }) => {
-  const colorClasses = {
-    blue: "bg-blue-100 text-blue-600",
-    green: "bg-green-100 text-green-600",
-    purple: "bg-purple-100 text-purple-600",
-    orange: "bg-orange-100 text-orange-600",
-  };
-
-  return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex items-center space-x-4">
-      <div
-        className={`w-12 h-12 rounded-lg flex items-center justify-center ${colorClasses[color]}`}
-      >
-        <Icon size={24} />
-      </div>
-      <div>
-        <p className="text-2xl font-bold text-gray-900">{value}</p>
-        <p className="text-sm text-gray-600">{label}</p>
-      </div>
     </div>
   );
 };

@@ -56,7 +56,7 @@ const Profile = () => {
         (f) => Number(f.read_percentage) === 100,
       ).length;
       const readPages = files.reduce(
-        (acc, f) => acc + (Number(f.pages_read) || 0),
+        (acc, f) => acc + (Number(f.page_read) || 0),
         0,
       );
       const totalPages = files.reduce(
