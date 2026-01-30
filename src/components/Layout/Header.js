@@ -80,15 +80,6 @@ const Header = () => {
 
             <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
               <div className="py-2">
-                {isAdmin && (
-                  <Link
-                    to="/admin"
-                    className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    <Shield size={16} />
-                    <span>Admin Dashboard</span>
-                  </Link>
-                )}
                 <Link
                   to="/profile"
                   className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"

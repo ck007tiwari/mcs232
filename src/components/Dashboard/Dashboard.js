@@ -13,18 +13,30 @@ import {
   Loader,
 } from "lucide-react";
 import { useApp } from "../../context/AppContext";
-import ProgressChart from "./ProgressChart";
+import WeeklyProgressChart from "./WeeklyProgressChart";
 import SubjectProgress from "./SubjectProgress";
+import RecentFiles from "./RecentFiles";
+import FileProgressChart from "./FileProgressChart";
+
+const generateColors = (numColors) => {
+  const colors = [];
+  for (let i = 0; i < numColors; i++) {
+    const hue = (i * 360) / numColors;
+    colors.push(`hsl(${hue}, 70%, 50%)`);
+  }
+  return colors;
+};
 
 const Dashboard = () => {
   const { user, subjects, openUploadForm, getDashboardStats } = useApp();
   const [loading, setLoading] = useState(true);
   const [dashboardStats, setDashboardStats] = useState(null);
   const [weeklyProgress, setWeeklyProgress] = useState([]);
-  const [subjectProgress, setSubjectProgress] = useState([]);
+  const [subjectBreakdown, setSubjectBreakdown] = useState([]);
+  const [subjectFiles, setSubjectFiles] = useState([]);
   const [maxMinutes, setMaxMinutes] = useState(60);
 
-  const chartConfig = useMemo(
+  const weeklyProgressChartConfig = useMemo(
     () => ({
       labels: Array.isArray(weeklyProgress)
         ? weeklyProgress.map((item) => item.day)
@@ -35,36 +47,45 @@ const Dashboard = () => {
           data: Array.isArray(weeklyProgress)
             ? weeklyProgress.map((item) => item.minutes)
             : [],
+          backgroundColor: "rgba(99, 102, 241, 0.8)",
           borderColor: "rgb(99, 102, 241)",
-          backgroundColor: "rgba(99, 102, 241, 0.1)",
-          fill: true,
-          tension: 0.4,
+          borderWidth: 1,
         },
       ],
     }),
     [weeklyProgress],
   );
 
-  const subjectChartConfig = useMemo(
+  const subjectBreakdownChartConfig = useMemo(
     () => ({
-      labels: Array.isArray(subjectProgress)
-        ? subjectProgress.map((item) => item.name || item.subject)
+      labels: Array.isArray(subjectBreakdown)
+        ? subjectBreakdown.map((item) => item.name)
         : [],
       datasets: [
         {
-          label: "Progress",
-          data: Array.isArray(subjectProgress)
-            ? subjectProgress.map((item) => item.progress || 0)
+          label: "Hours Read",
+          data: Array.isArray(subjectBreakdown)
+            ? subjectBreakdown.map((item) => item.hours_read)
             : [],
-          backgroundColor: Array.isArray(subjectProgress)
-            ? subjectProgress.map((item) => item.color || "#6366f1")
-            : [],
-          borderRadius: 4,
+          backgroundColor: generateColors(subjectBreakdown.length),
         },
       ],
     }),
-    [subjectProgress],
+    [subjectBreakdown],
   );
+
+  const filesWithSubjectNames = useMemo(() => {
+    if (!subjectFiles.length || !subjects.length) {
+      return [];
+    }
+    return subjectFiles.map(file => {
+      const subject = subjects.find(s => s.id === file.subject);
+      return {
+        ...file,
+        subjectName: subject ? subject.name : 'Unknown Subject',
+      };
+    });
+  }, [subjectFiles, subjects]);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -78,12 +99,15 @@ const Dashboard = () => {
               0,
               ...stats.weekly_progress.map((item) => item.minutes || 0),
             );
-            setMaxMinutes(maxMinutes);
+            setMaxMinutes(maxMinutes > 0 ? maxMinutes : 60);
           } else {
             setWeeklyProgress([]);
           }
-          if (stats.subject_progress) {
-            setSubjectProgress(stats.subject_progress);
+          if (stats.subject_breakdown) {
+            setSubjectBreakdown(stats.subject_breakdown);
+          }
+          if (stats.subject_files) {
+            setSubjectFiles(stats.subject_files);
           }
         }
       } catch (error) {
@@ -118,13 +142,13 @@ const Dashboard = () => {
     },
     {
       title: "Study Hours",
-      value: dashboardStats?.total_hours_read || 0,
+      value: dashboardStats?.total_hours_read?.toFixed(2) || 0,
       icon: Clock,
       color: "bg-purple-500",
     },
     {
       title: "Progress",
-      value: `${dashboardStats?.average_progress || 0}%`,
+      value: `${dashboardStats?.average_progress?.toFixed(2) || 0}%`,
       icon: TrendingUp,
       color: "bg-orange-500",
     },
@@ -168,17 +192,6 @@ const Dashboard = () => {
                 <p className="text-2xl font-bold text-gray-900 mt-1">
                   {stat.value}
                 </p>
-                {stat.change && (
-                  <p
-                    className={`text-sm mt-1 ${
-                      stat.changeType === "positive"
-                        ? "text-green-600"
-                        : "text-red-600"
-                    }`}
-                  >
-                    {stat.change} from last week
-                  </p>
-                )}
               </div>
               <div
                 className={`w-12 h-12 ${stat.color} rounded-lg flex items-center justify-center`}
@@ -192,13 +205,21 @@ const Dashboard = () => {
 
       {/* Charts and Progress */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <ProgressChart
-          data={chartConfig}
-          title="Weekly Reading Progress"
-          yAxisMax={maxMinutes === 0 ? 60 : undefined}
+        <WeeklyProgressChart
+          data={weeklyProgressChartConfig}
+          title="Weekly Reading Progress (minutes)"
+          yAxisMax={maxMinutes}
         />
-        <SubjectProgress data={subjectChartConfig} />
+        <SubjectProgress data={subjectBreakdownChartConfig} />
       </div>
+
+      {/* File Progress and Recent Files */}
+      {subjectFiles.length > 0 && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <FileProgressChart files={filesWithSubjectNames} />
+          <RecentFiles files={filesWithSubjectNames} />
+        </div>
+      )}
 
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -235,9 +256,6 @@ const Dashboard = () => {
                   files.filter(
                     (f) => (f.read_percentage === 100),
                   ).length;
-
-                // here page read means user go the max page of that pdf
-                // actual page read is the length of the visited pages array
 
                 const subjectProgress =
                   totalPages > 0

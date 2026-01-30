@@ -27,7 +27,14 @@ const SubjectProgress = ({ data }) => {
         bodyColor: 'white',
         callbacks: {
           label: function(context) {
-            return `${context.label}: ${context.parsed}%`;
+            let label = context.label || '';
+            if (label) {
+              label += ': ';
+            }
+            if (context.parsed !== null) {
+              label += `${context.parsed.toFixed(2)} hours`;
+            }
+            return label;
           }
         }
       },
@@ -37,7 +44,7 @@ const SubjectProgress = ({ data }) => {
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">Subject Progress</h3>
+      <h3 className="text-lg font-semibold text-gray-900 mb-4">Subject Breakdown (by hours)</h3>
       <div className="h-64">
         <Doughnut data={data} options={options} />
       </div>

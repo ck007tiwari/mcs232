@@ -40,14 +40,15 @@ const AdminRoute = ({ children }) => {
 };
 
 const AuthRoute = ({ children }) => {
-  const { isAuthenticated, isAdmin } = useApp();
+  const { isAuthenticated } = useApp();
   if (isAuthenticated) {
-    return <Navigate to={isAdmin ? "/admin" : "/dashboard"} replace />;
+    return <Navigate to={"/dashboard"} replace />;
   }
   return children;
 };
 
 const AppRoutes = () => {
+  const { isAdmin } = useApp();
   return (
     <Router>
       <Toast />
@@ -79,7 +80,10 @@ const AppRoutes = () => {
           }
         >
           <Route index element={<Navigate to="/dashboard" />} />
-          <Route path="dashboard" element={<Dashboard />} />
+          <Route
+            path="dashboard"
+            element={isAdmin ? <AdminDashboard /> : <Dashboard />}
+          />
           <Route path="subject/:subjectId" element={<SubjectView />} />
           <Route path="pdf/:pdfId" element={<PdfViewer />} />
           <Route path="profile" element={<Profile />} />
