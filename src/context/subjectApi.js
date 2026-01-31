@@ -48,3 +48,12 @@ export const getPdfProgress = async (pdfId) => {
   const response = await api.get(`/users/files/${pdfId}/`);
   return { data: response.data, status: response.status };
 };
+
+export const getQAHistory = async (endpoint) => {
+  try {
+    const response = await api.get(endpoint);
+    return { data: response.data, status: response.status };
+  } catch (error) {
+    return { data: null, status: error.response?.status || 500 };
+  }
+};

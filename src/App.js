@@ -19,6 +19,7 @@ import Profile from "./components/Profile/Profile";
 import SubjectListPage from "./components/Subject/SubjectListPage";
 import Dashboard from "./components/Dashboard/Dashboard";
 import AdminDashboard from "./components/Admin/AdminDashboard";
+import QAHistory from "./components/QA/QAHistory";
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated } = useApp();
@@ -88,6 +89,7 @@ const AppRoutes = () => {
           <Route path="pdf/:pdfId" element={<PdfViewer />} />
           <Route path="profile" element={<Profile />} />
           <Route path="subjects" element={<SubjectListPage />} />
+          <Route path="qa" element={<QAHistory />} />
           <Route
             path="admin"
             element={
