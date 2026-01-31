@@ -12,6 +12,7 @@ import {
   Send,
   FileText,
   File,
+  Files,
 } from "lucide-react";
 import { useApp } from "../../context/AppContext";
 import Tooltip from "../../utils/tooltip";
@@ -23,7 +24,7 @@ const PdfViewer = () => {
   const { pdfId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const { subjects, updateProgress, askQuestion } = useApp();
+  const { subjects, updateProgress, askQuestion, showToast } = useApp();
 
   const [currentPage, setCurrentPage] = useState(location.state?.page || 1);
   const [fetchedProgress, setFetchedProgress] = useState(null);
@@ -34,6 +35,8 @@ const PdfViewer = () => {
   const [chatMessages, setChatMessages] = useState([]);
   const [questionInput, setQuestionInput] = useState("");
   const [contextMode, setContextMode] = useState("page"); // 'page' or 'document'
+  const [rangeStart, setRangeStart] = useState("");
+  const [rangeEnd, setRangeEnd] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const saveTimeoutRef = useRef(null);
   const lastSaveTimeRef = useRef(Date.now());
@@ -199,6 +202,29 @@ const PdfViewer = () => {
   const handleSendMessage = async () => {
     if (!questionInput.trim()) return;
 
+    let context;
+    if (contextMode === "range") {
+      const start = parseInt(rangeStart);
+      const end = parseInt(rangeEnd);
+      const maxPage = numPages || pdfTotalPages;
+
+      if (!rangeStart || !rangeEnd) {
+        return showToast("Please enter both start and end pages", "error");
+      }
+      if (isNaN(start) || isNaN(end) || start < 1 || end > maxPage) {
+        return showToast(
+          `Page range must be between 1 and ${maxPage}`,
+          "error",
+        );
+      }
+      if (start > end) {
+        return showToast("Start page cannot be greater than end page", "error");
+      }
+      context = `${start}-${end}`;
+    } else {
+      context = contextMode === "page" ? currentPage : "document";
+    }
+
     const currentQuestion = questionInput;
     setQuestionInput("");
     setIsTyping(true);
@@ -211,8 +237,6 @@ const PdfViewer = () => {
       timestamp: new Date(),
     };
     setChatMessages((prev) => [...prev, userMsg]);
-
-    const context = contextMode === "page" ? currentPage : "document";
 
     try {
       const response = await askQuestion(pdfId, currentQuestion, context);
@@ -373,7 +397,7 @@ const PdfViewer = () => {
 
         {/* QA Sidebar */}
         {showQA && (
-          <div className="w-80 bg-white border-l border-gray-200 flex flex-col shadow-xl z-10 absolute right-0 top-0 bottom-0 sm:relative">
+          <div className="w-96 bg-white border-l border-gray-200 flex flex-col shadow-xl z-10 absolute right-0 top-0 bottom-0 sm:relative">
             <div className="p-4 border-b border-gray-200 font-semibold text-gray-700 flex justify-between items-center bg-gray-50">
               <div className="flex items-center space-x-2">
                 <MessageCircle size={18} className="text-primary-500" />
@@ -450,37 +474,76 @@ const PdfViewer = () => {
             {/* Input Area */}
             <div className="p-4 bg-white border-t border-gray-200">
               {/* Context Selector */}
-              <div className="flex items-center space-x-2 mb-3 text-xs">
-                <span className="text-gray-500 font-medium">Context:</span>
-                <button
-                  onClick={() => setContextMode("page")}
-                  className={`flex items-center px-2 py-1 rounded border ${
-                    contextMode === "page"
-                      ? "bg-primary-50 border-primary-200 text-primary-700"
-                      : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
-                  }`}
-                >
-                  <File size={12} className="mr-1" />
-                  Page {currentPage}
-                </button>
+              <div className="flex flex-col gap-2 mb-3">
+                <div className="flex items-center space-x-2 text-xs">
+                  <span className="text-gray-500 font-medium">Context:</span>
+                  <button
+                    onClick={() => setContextMode("page")}
+                    className={`flex items-center px-2 py-1 rounded border ${
+                      contextMode === "page"
+                        ? "bg-primary-50 border-primary-200 text-primary-700"
+                        : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
+                    }`}
+                  >
+                    <File size={12} className="mr-1" />
+                    Page {currentPage}
+                  </button>
 
-                <button
-                  onClick={() => setContextMode("document")}
-                  disabled={!isSmallEnough}
-                  className={`flex items-center px-2 py-1 rounded border ${
-                    contextMode === "document"
-                      ? "bg-primary-50 border-primary-200 text-primary-700"
-                      : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
-                  } ${!isSmallEnough ? "opacity-50 cursor-not-allowed" : ""}`}
-                  title={
-                    !isSmallEnough
-                      ? "File too large (>5MB) for full context"
-                      : "Use whole document"
-                  }
-                >
-                  <FileText size={12} className="mr-1" />
-                  Whole PDF
-                </button>
+                  <button
+                    onClick={() => setContextMode("document")}
+                    disabled={!isSmallEnough}
+                    className={`flex items-center px-2 py-1 rounded border ${
+                      contextMode === "document"
+                        ? "bg-primary-50 border-primary-200 text-primary-700"
+                        : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
+                    } ${!isSmallEnough ? "opacity-50 cursor-not-allowed" : ""}`}
+                    title={
+                      !isSmallEnough
+                        ? "File too large (>5MB) for full context"
+                        : "Use whole document"
+                    }
+                  >
+                    <FileText size={12} className="mr-1" />
+                    Whole PDF
+                  </button>
+
+                  <button
+                    onClick={() => setContextMode("range")}
+                    className={`flex items-center px-2 py-1 rounded border ${
+                      contextMode === "range"
+                        ? "bg-primary-50 border-primary-200 text-primary-700"
+                        : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
+                    }`}
+                  >
+                    <Files size={12} className="mr-1" />
+                    Range
+                  </button>
+                </div>
+
+                {contextMode === "range" && (
+                  <div className="flex items-center space-x-2 text-xs bg-gray-50 p-2 rounded border border-gray-200">
+                    <span className="text-gray-600">Pages:</span>
+                    <input
+                      type="number"
+                      min="1"
+                      max={numPages || pdfTotalPages}
+                      value={rangeStart}
+                      onChange={(e) => setRangeStart(e.target.value)}
+                      className="w-12 p-1 border border-gray-300 rounded text-center focus:ring-1 focus:ring-primary-500 outline-none"
+                      placeholder="Start"
+                    />
+                    <span className="text-gray-400">to</span>
+                    <input
+                      type="number"
+                      min="1"
+                      max={numPages || pdfTotalPages}
+                      value={rangeEnd}
+                      onChange={(e) => setRangeEnd(e.target.value)}
+                      className="w-12 p-1 border border-gray-300 rounded text-center focus:ring-1 focus:ring-primary-500 outline-none"
+                      placeholder="End"
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="relative">
