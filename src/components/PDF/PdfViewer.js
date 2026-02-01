@@ -176,10 +176,10 @@ const PdfViewer = () => {
   if (!pdfFromState) {
     return (
       <div className="text-center py-12">
-        <h2 className="text-2xl font-bold text-gray-900">PDF not found</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">PDF not found</h2>
         <Link
           to="/dashboard"
-          className="text-primary-600 hover:text-primary-700 mt-4 inline-block"
+          className="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 mt-4 inline-block"
         >
           ← Back to Dashboard
         </Link>
@@ -264,20 +264,20 @@ const PdfViewer = () => {
   };
 
   return (
-    <div className="flex h-full bg-gray-100 overflow-hidden">
+    <div className="flex h-full bg-gray-100 dark:bg-dark-primary overflow-hidden">
       {/* Sidebar Toolbar (Left) */}
-      <aside className="w-16 bg-white border-r border-gray-200 flex flex-col items-center py-4 shadow-sm z-20 shrink-0 gap-6">
+      <aside className="w-16 bg-white dark:bg-dark-secondary border-r border-gray-200 dark:border-gray-700 flex flex-col items-center py-4 shadow-sm z-20 shrink-0 gap-6">
         {/* Back Button */}
         <Tooltip text="Back to Dashboard">
           <button
             onClick={() => navigate(-1)}
-            className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
           >
             <ArrowLeft size={20} />
           </button>
         </Tooltip>
 
-        <div className="w-8 border-b border-gray-200"></div>
+        <div className="w-8 border-b border-gray-200 dark:border-gray-700"></div>
 
         {/* Navigation */}
         <div className="flex flex-col items-center gap-1">
@@ -285,58 +285,58 @@ const PdfViewer = () => {
             <button
               onClick={handlePrevPage}
               disabled={currentPage <= 1}
-              className="p-1.5 text-gray-600 hover:bg-gray-100 rounded-md transition-all disabled:opacity-30"
+              className="p-1.5 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-all disabled:opacity-30"
             >
               <ChevronLeft size={20} />
             </button>
           </Tooltip>
-          <span className="text-xs font-semibold text-gray-700 py-1">
+          <span className="text-xs font-semibold text-gray-700 dark:text-gray-200 py-1">
             {currentPage}
           </span>
           <Tooltip text="Next Page">
             <button
               onClick={handleNextPage}
               disabled={numPages && currentPage >= numPages}
-              className="p-1.5 text-gray-600 hover:bg-gray-100 rounded-md transition-all disabled:opacity-30"
+              className="p-1.5 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-all disabled:opacity-30"
             >
               <ChevronRight size={20} />
             </button>
           </Tooltip>
         </div>
 
-        <div className="w-8 border-b border-gray-200"></div>
+        <div className="w-8 border-b border-gray-200 dark:border-gray-700"></div>
 
         {/* Zoom */}
         <div className="flex flex-col items-center gap-1">
           <Tooltip text="Zoom In">
             <button
               onClick={() => setZoom((z) => Math.min(z + 0.1, 3.0))}
-              className="p-1.5 text-gray-600 hover:bg-gray-100 rounded-md transition-all"
+              className="p-1.5 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-all"
             >
               <ZoomIn size={20} />
             </button>
           </Tooltip>
-          <span className="text-xs font-semibold text-gray-700 py-1">
+          <span className="text-xs font-semibold text-gray-700 dark:text-gray-200 py-1">
             {Math.round(zoom * 100)}%
           </span>
           <Tooltip text="Zoom Out">
             <button
               onClick={() => setZoom((z) => Math.max(z - 0.1, 0.5))}
-              className="p-1.5 text-gray-600 hover:bg-gray-100 rounded-md transition-all"
+              className="p-1.5 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-all"
             >
               <ZoomOut size={20} />
             </button>
           </Tooltip>
         </div>
 
-        <div className="w-8 border-b border-gray-200"></div>
+        <div className="w-8 border-b border-gray-200 dark:border-gray-700"></div>
 
         {/* Tools */}
         <div className="flex flex-col items-center gap-4">
           <Tooltip text="Rotate Page">
             <button
               onClick={() => setRotation((r) => (r + 90) % 360)}
-              className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-all"
+              className="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all"
             >
               <RotateCw size={20} />
             </button>
@@ -347,8 +347,8 @@ const PdfViewer = () => {
               onClick={() => setShowQA(!showQA)}
               className={`p-2 rounded-lg transition-all ${
                 showQA
-                  ? "bg-primary-50 text-primary-600"
-                  : "text-gray-600 hover:bg-gray-100"
+                  ? "bg-primary-50 text-primary-600 dark:bg-primary-900 dark:text-primary-300"
+                  : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
               }`}
             >
               <MessageCircle size={20} />
@@ -372,9 +372,9 @@ const PdfViewer = () => {
                 </div>
               }
               error={
-                <div className="p-8 bg-white rounded-lg shadow text-center">
+                <div className="p-8 bg-white dark:bg-dark-secondary rounded-lg shadow text-center">
                   <div className="text-red-500 mb-2">Failed to load PDF</div>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     The file might be corrupted or missing.
                   </p>
                 </div>
@@ -388,7 +388,7 @@ const PdfViewer = () => {
                 renderAnnotationLayer={false}
                 className="bg-white"
                 loading={
-                  <div className="h-[800px] w-[600px] bg-white animate-pulse" />
+                  <div className="h-[800px] w-[600px] bg-white dark:bg-dark-secondary animate-pulse" />
                 }
               />
             </Document>
@@ -397,28 +397,28 @@ const PdfViewer = () => {
 
         {/* QA Sidebar */}
         {showQA && (
-          <div className="w-96 bg-white border-l border-gray-200 flex flex-col shadow-xl z-10 absolute right-0 top-0 bottom-0 sm:relative">
-            <div className="p-4 border-b border-gray-200 font-semibold text-gray-700 flex justify-between items-center bg-gray-50">
+          <div className="w-96 bg-white dark:bg-dark-secondary border-l border-gray-200 dark:border-gray-700 flex flex-col shadow-xl z-10 absolute right-0 top-0 bottom-0 sm:relative">
+            <div className="p-4 border-b border-gray-200 dark:border-gray-700 font-semibold text-gray-700 dark:text-gray-200 flex justify-between items-center bg-gray-50 dark:bg-dark-secondary">
               <div className="flex items-center space-x-2">
                 <MessageCircle size={18} className="text-primary-500" />
                 <span>AI Assistant</span>
               </div>
               <button
                 onClick={() => setShowQA(false)}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
               >
                 <ChevronRight size={18} />
               </button>
             </div>
 
             {/* Chat Area */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-dark-primary">
               {chatMessages.length === 0 ? (
-                <div className="text-center text-gray-500 mt-10">
-                  <div className="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center mx-auto mb-3">
+                <div className="text-center text-gray-500 dark:text-gray-400 mt-10">
+                  <div className="w-12 h-12 bg-white dark:bg-dark-secondary rounded-full shadow-sm flex items-center justify-center mx-auto mb-3">
                     <MessageCircle size={24} className="text-primary-400" />
                   </div>
-                  <p className="text-sm font-medium text-gray-900">
+                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                     No messages yet
                   </p>
                   <p className="text-xs mt-1">
@@ -435,7 +435,7 @@ const PdfViewer = () => {
                       className={`max-w-[85%] rounded-lg p-3 text-sm ${
                         msg.sender === "user"
                           ? "bg-primary-600 text-white rounded-br-none"
-                          : "bg-white border border-gray-200 text-gray-800 rounded-bl-none shadow-sm"
+                          : "bg-white dark:bg-dark-secondary border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 rounded-bl-none shadow-sm"
                       }`}
                     >
                       <p>{msg.text}</p>
@@ -450,7 +450,7 @@ const PdfViewer = () => {
               )}
               {isTyping && (
                 <div className="flex justify-start">
-                  <div className="bg-white border border-gray-200 rounded-lg rounded-bl-none p-3 shadow-sm">
+                  <div className="bg-white dark:bg-dark-secondary border border-gray-200 dark:border-gray-700 rounded-lg rounded-bl-none p-3 shadow-sm">
                     <div className="flex space-x-1">
                       <div
                         className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
@@ -472,17 +472,17 @@ const PdfViewer = () => {
             </div>
 
             {/* Input Area */}
-            <div className="p-4 bg-white border-t border-gray-200">
+            <div className="p-4 bg-white dark:bg-dark-secondary border-t border-gray-200 dark:border-gray-700">
               {/* Context Selector */}
               <div className="flex flex-col gap-2 mb-3">
                 <div className="flex items-center space-x-2 text-xs">
-                  <span className="text-gray-500 font-medium">Context:</span>
+                  <span className="text-gray-500 dark:text-gray-400 font-medium">Context:</span>
                   <button
                     onClick={() => setContextMode("page")}
                     className={`flex items-center px-2 py-1 rounded border ${
                       contextMode === "page"
-                        ? "bg-primary-50 border-primary-200 text-primary-700"
-                        : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
+                        ? "bg-primary-50 border-primary-200 text-primary-700 dark:bg-primary-900 dark:border-primary-700 dark:text-primary-300"
+                        : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50 dark:bg-dark-secondary dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
                     }`}
                   >
                     <File size={12} className="mr-1" />
@@ -494,8 +494,8 @@ const PdfViewer = () => {
                     disabled={!isSmallEnough}
                     className={`flex items-center px-2 py-1 rounded border ${
                       contextMode === "document"
-                        ? "bg-primary-50 border-primary-200 text-primary-700"
-                        : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
+                        ? "bg-primary-50 border-primary-200 text-primary-700 dark:bg-primary-900 dark:border-primary-700 dark:text-primary-300"
+                        : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50 dark:bg-dark-secondary dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
                     } ${!isSmallEnough ? "opacity-50 cursor-not-allowed" : ""}`}
                     title={
                       !isSmallEnough
@@ -511,8 +511,8 @@ const PdfViewer = () => {
                     onClick={() => setContextMode("range")}
                     className={`flex items-center px-2 py-1 rounded border ${
                       contextMode === "range"
-                        ? "bg-primary-50 border-primary-200 text-primary-700"
-                        : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
+                        ? "bg-primary-50 border-primary-200 text-primary-700 dark:bg-primary-900 dark:border-primary-700 dark:text-primary-300"
+                        : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50 dark:bg-dark-secondary dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
                     }`}
                   >
                     <Files size={12} className="mr-1" />
@@ -521,15 +521,15 @@ const PdfViewer = () => {
                 </div>
 
                 {contextMode === "range" && (
-                  <div className="flex items-center space-x-2 text-xs bg-gray-50 p-2 rounded border border-gray-200">
-                    <span className="text-gray-600">Pages:</span>
+                  <div className="flex items-center space-x-2 text-xs bg-gray-50 dark:bg-dark-primary p-2 rounded border border-gray-200 dark:border-gray-600">
+                    <span className="text-gray-600 dark:text-gray-400">Pages:</span>
                     <input
                       type="number"
                       min="1"
                       max={numPages || pdfTotalPages}
                       value={rangeStart}
                       onChange={(e) => setRangeStart(e.target.value)}
-                      className="w-12 p-1 border border-gray-300 rounded text-center focus:ring-1 focus:ring-primary-500 outline-none"
+                      className="w-12 p-1 border border-gray-300 dark:border-gray-600 rounded text-center focus:ring-1 focus:ring-primary-500 outline-none bg-white dark:bg-dark-secondary dark:text-gray-200"
                       placeholder="Start"
                     />
                     <span className="text-gray-400">to</span>
@@ -539,7 +539,7 @@ const PdfViewer = () => {
                       max={numPages || pdfTotalPages}
                       value={rangeEnd}
                       onChange={(e) => setRangeEnd(e.target.value)}
-                      className="w-12 p-1 border border-gray-300 rounded text-center focus:ring-1 focus:ring-primary-500 outline-none"
+                      className="w-12 p-1 border border-gray-300 dark:border-gray-600 rounded text-center focus:ring-1 focus:ring-primary-500 outline-none bg-white dark:bg-dark-secondary dark:text-gray-200"
                       placeholder="End"
                     />
                   </div>
@@ -553,7 +553,7 @@ const PdfViewer = () => {
                   onChange={(e) => setQuestionInput(e.target.value)}
                   onKeyDown={handleKeyPress}
                   placeholder="Type your question..."
-                  className="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none text-sm custom-scrollbar"
+                  className="w-full pl-3 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none text-sm custom-scrollbar bg-white dark:bg-dark-primary dark:text-gray-200"
                   rows={2}
                   style={{ minHeight: "58px", maxHeight: "98px" }}
                 />

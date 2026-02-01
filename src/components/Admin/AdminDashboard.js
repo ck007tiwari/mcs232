@@ -30,11 +30,11 @@ const AdminDashboard = () => {
   if (!isAdmin) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
-        <div className="bg-gray-100 p-4 rounded-full mb-4">
+        <div className="bg-gray-100 dark:bg-gray-700 p-4 rounded-full mb-4">
           <Shield size={48} className="text-gray-400" />
         </div>
-        <h2 className="text-2xl font-bold text-gray-900">Access Denied</h2>
-        <p className="text-gray-600 mt-2 max-w-md">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Access Denied</h2>
+        <p className="text-gray-600 dark:text-gray-300 mt-2 max-w-md">
           You need administrator privileges to view this page. Please contact
           support if you believe this is an error.
         </p>
@@ -114,15 +114,15 @@ const AdminDashboard = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-          <p className="text-gray-600 mt-1">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Admin Dashboard</h1>
+          <p className="text-gray-600 dark:text-gray-300 mt-1">
             Overview of system performance and content management
           </p>
         </div>
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate("/subjects")}
-            className="flex items-center space-x-2 bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors"
+            className="flex items-center space-x-2 bg-white dark:bg-dark-secondary border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 px-4 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           >
             <BookOpen size={18} />
             <span>Manage Subjects</span>
@@ -162,9 +162,9 @@ const AdminDashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* User Management (Left 2/3) */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="p-6 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <h2 className="text-lg font-semibold text-gray-900">Users</h2>
+          <div className="bg-white dark:bg-dark-secondary rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Users</h2>
               <div className="relative">
                 <Search
                   size={18}
@@ -175,14 +175,14 @@ const AdminDashboard = () => {
                   placeholder="Search users..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent w-full sm:w-64"
+                  className="pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent w-full sm:w-64 bg-white dark:bg-dark-primary dark:text-gray-200"
                 />
               </div>
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm text-gray-600">
-                <thead className="bg-gray-50 text-gray-900 font-medium border-b border-gray-200">
+              <table className="w-full text-left text-sm text-gray-600 dark:text-gray-300">
+                <thead className="bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-200 font-medium border-b border-gray-200 dark:border-gray-600">
                   <tr>
                     <th className="px-6 py-3 w-10"></th>
                     <th className="px-6 py-3">User</th>
@@ -191,13 +191,13 @@ const AdminDashboard = () => {
                     <th className="px-6 py-3 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
+                <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                   {filteredUsers.length > 0 ? (
                     filteredUsers.map((user) => (
                       <React.Fragment key={user.id}>
                         <tr
-                          className={`hover:bg-gray-50 transition-colors cursor-pointer ${
-                            expandedUsers[user.id] ? "bg-gray-50" : ""
+                          className={`hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer ${
+                            expandedUsers[user.id] ? "bg-gray-50 dark:bg-gray-700" : ""
                           }`}
                           onClick={() => toggleUserRow(user.id)}
                         >
@@ -212,14 +212,14 @@ const AdminDashboard = () => {
                           </td>
                           <td className="px-6 py-4">
                             <div className="flex items-center space-x-3">
-                              <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center text-primary-600 font-bold">
+                              <div className="w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center text-primary-600 dark:text-primary-400 font-bold">
                                 {(user.username || "U").charAt(0).toUpperCase()}
                               </div>
                               <div>
-                                <p className="font-medium text-gray-900">
+                                <p className="font-medium text-gray-900 dark:text-gray-100">
                                   {user.username}
                                 </p>
-                                <p className="text-xs text-gray-500">
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
                                   {user.email}
                                 </p>
                               </div>
@@ -229,8 +229,8 @@ const AdminDashboard = () => {
                             <span
                               className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                                 user.role === "admin"
-                                  ? "bg-purple-100 text-purple-800"
-                                  : "bg-blue-100 text-blue-800"
+                                  ? "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200"
+                                  : "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
                               }`}
                             >
                               {user.role}
@@ -245,7 +245,7 @@ const AdminDashboard = () => {
                                 e.stopPropagation();
                                 handleDeleteUser(user.id, user.username);
                               }}
-                              className="text-gray-400 hover:text-red-600 transition-colors p-1"
+                              className="text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors p-1"
                               title="Delete User"
                             >
                               <Trash2 size={18} />
@@ -253,38 +253,38 @@ const AdminDashboard = () => {
                           </td>
                         </tr>
                         {expandedUsers[user.id] && (
-                          <tr className="bg-gray-50">
+                          <tr className="bg-gray-50 dark:bg-gray-700">
                             <td colSpan="5" className="px-6 py-4">
                               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                                <div className="bg-white p-3 rounded-lg border border-gray-200">
-                                  <p className="text-gray-500 text-xs">
+                                <div className="bg-white dark:bg-dark-primary p-3 rounded-lg border border-gray-200 dark:border-gray-600">
+                                  <p className="text-gray-500 dark:text-gray-400 text-xs">
                                     Total Documents
                                   </p>
-                                  <p className="font-semibold text-gray-900 text-lg">
+                                  <p className="font-semibold text-gray-900 dark:text-gray-100 text-lg">
                                     {expandedUsers[user.id].documentCount}
                                   </p>
                                 </div>
-                                <div className="bg-white p-3 rounded-lg border border-gray-200">
-                                  <p className="text-gray-500 text-xs">
+                                <div className="bg-white dark:bg-dark-primary p-3 rounded-lg border border-gray-200 dark:border-gray-600">
+                                  <p className="text-gray-500 dark:text-gray-400 text-xs">
                                     Total Pages
                                   </p>
-                                  <p className="font-semibold text-gray-900 text-lg">
+                                  <p className="font-semibold text-gray-900 dark:text-gray-100 text-lg">
                                     {expandedUsers[user.id].totalPageCount}
                                   </p>
                                 </div>
-                                <div className="bg-white p-3 rounded-lg border border-gray-200">
-                                  <p className="text-gray-500 text-xs">
+                                <div className="bg-white dark:bg-dark-primary p-3 rounded-lg border border-gray-200 dark:border-gray-600">
+                                  <p className="text-gray-500 dark:text-gray-400 text-xs">
                                     Subjects
                                   </p>
-                                  <p className="font-semibold text-gray-900 text-lg">
+                                  <p className="font-semibold text-gray-900 dark:text-gray-100 text-lg">
                                     {expandedUsers[user.id].subjectCount}
                                   </p>
                                 </div>
-                                <div className="bg-white p-3 rounded-lg border border-gray-200">
-                                  <p className="text-gray-500 text-xs">
+                                <div className="bg-white dark:bg-dark-primary p-3 rounded-lg border border-gray-200 dark:border-gray-600">
+                                  <p className="text-gray-500 dark:text-gray-400 text-xs">
                                     Storage Used
                                   </p>
-                                  <p className="font-semibold text-gray-900 text-lg">
+                                  <p className="font-semibold text-gray-900 dark:text-gray-100 text-lg">
                                     {expandedUsers[user.id].storageUsed}
                                   </p>
                                 </div>
@@ -298,7 +298,7 @@ const AdminDashboard = () => {
                     <tr>
                       <td
                         colSpan="5"
-                        className="px-6 py-8 text-center text-gray-500"
+                        className="px-6 py-8 text-center text-gray-500 dark:text-gray-400"
                       >
                         No users found matching your search.
                       </td>
@@ -308,8 +308,8 @@ const AdminDashboard = () => {
               </table>
             </div>
             {filteredUsers.length > 10 && (
-              <div className="p-4 border-t border-gray-200 bg-gray-50 text-center">
-                <span className="text-xs text-gray-500">
+              <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 text-center">
+                <span className="text-xs text-gray-500 dark:text-gray-400">
                   Showing top results
                 </span>
               </div>
@@ -319,28 +319,28 @@ const AdminDashboard = () => {
 
         {/* Right Column: Recent Uploads */}
         <div className="space-y-6">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="p-6 border-b border-gray-200">
-              <h2 className="text-lg font-semibold text-gray-900">
+          <div className="bg-white dark:bg-dark-secondary rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                 Recent Uploads
               </h2>
             </div>
-            <div className="divide-y divide-gray-200">
+            <div className="divide-y divide-gray-200 dark:divide-gray-700">
               {allPdfs.length > 0 ? (
                 allPdfs.slice(0, 5).map((pdf, idx) => (
                   <div
                     key={pdf.id || idx}
-                    className="p-4 hover:bg-gray-50 transition-colors"
+                    className="p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                   >
                     <div className="flex items-start space-x-3">
-                      <div className="p-2 bg-red-50 rounded text-red-600">
+                      <div className="p-2 bg-red-50 dark:bg-red-900 rounded text-red-600 dark:text-red-300">
                         <FileText size={16} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">
+                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
                           {pdf.title}
                         </p>
-                        <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
+                        <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mt-1">
                           <span
                             className="px-2 py-0.5 rounded-full"
                             style={{
@@ -361,15 +361,15 @@ const AdminDashboard = () => {
                   </div>
                 ))
               ) : (
-                <div className="p-6 text-center text-gray-500 text-sm">
+                <div className="p-6 text-center text-gray-500 dark:text-gray-400 text-sm">
                   No files uploaded yet.
                 </div>
               )}
             </div>
-            <div className="p-4 bg-gray-50 border-t border-gray-200 text-center">
+            <div className="p-4 bg-gray-50 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600 text-center">
               <button
                 onClick={() => navigate("/subjects")}
-                className="text-sm text-primary-600 font-medium hover:text-primary-700 flex items-center justify-center mx-auto"
+                className="text-sm text-primary-600 dark:text-primary-400 font-medium hover:text-primary-700 dark:hover:text-primary-300 flex items-center justify-center mx-auto"
               >
                 View All Files <ArrowRight size={16} className="ml-1" />
               </button>

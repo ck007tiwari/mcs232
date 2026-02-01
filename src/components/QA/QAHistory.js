@@ -56,10 +56,10 @@ const QAHistory = () => {
   }
 
   return (
-    <div className="qa-history-container">
+    <div className="qa-history-container dark:bg-dark-primary">
       <div className="qa-header">
-        <h1>Q&A History</h1>
-        <p>
+        <h1 className="dark:text-gray-100">Q&A History</h1>
+        <p className="dark:text-gray-300">
           {isAdmin && !selectedUserId
             ? "Overview of Q&A activity across all users."
             : "Review your questions and AI-powered answers."}
@@ -71,7 +71,7 @@ const QAHistory = () => {
           <div>
             <button
               onClick={handleBackToAdminView}
-              className="mb-4 text-primary-600 hover:underline"
+              className="mb-4 text-primary-600 hover:underline dark:text-primary-400"
             >
               &larr; Back to Admin Overview
             </button>

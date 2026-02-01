@@ -89,17 +89,17 @@ const AddSubjectForm = ({ subject, onClose }) => {
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-md rounded-2xl bg-white shadow-2xl
+        className="w-full max-w-md rounded-2xl bg-white dark:bg-dark-secondary shadow-2xl
                    animate-in fade-in zoom-in duration-200"
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b">
-          <h2 className="text-lg font-semibold text-gray-900">
+        <div className="flex items-center justify-between px-6 py-4 border-b dark:border-gray-700">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
             {isEditMode ? "Edit Subject" : "Add Subject"}
           </h2>
           <button
             onClick={handleClose}
-            className="rounded-full p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition"
+            className="rounded-full p-2 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-600 dark:hover:text-gray-300 transition"
           >
             <X size={18} />
           </button>
@@ -108,7 +108,7 @@ const AddSubjectForm = ({ subject, onClose }) => {
         {/* Body */}
         <form onSubmit={handleSubmit} className="px-6 py-5 space-y-5">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Subject name
             </label>
             <input
@@ -118,11 +118,11 @@ const AddSubjectForm = ({ subject, onClose }) => {
               onChange={(e) => setName(e.target.value)}
               maxLength={125}
               autoFocus
-              className={`w-full rounded-xl border px-4 py-2.5 text-sm transition
+              className={`w-full rounded-xl border px-4 py-2.5 text-sm transition bg-white dark:bg-dark-primary dark:text-gray-200
                 ${
                   errors.name
                     ? "border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/30"
-                    : "border-gray-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/30"
+                    : "border-gray-300 dark:border-gray-600 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/30"
                 }`}
             />
             {errors.name && (
@@ -131,7 +131,7 @@ const AddSubjectForm = ({ subject, onClose }) => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Description
             </label>
             <textarea
@@ -139,11 +139,11 @@ const AddSubjectForm = ({ subject, onClose }) => {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               maxLength={500}
-              className={`w-full rounded-xl border px-4 py-2.5 text-sm transition resize-none
+              className={`w-full rounded-xl border px-4 py-2.5 text-sm transition resize-none bg-white dark:bg-dark-primary dark:text-gray-200
                 ${
                   errors.description
                     ? "border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/30"
-                    : "border-gray-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/30"
+                    : "border-gray-300 dark:border-gray-600 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/30"
                 }`}
               rows={3}
             />
@@ -164,11 +164,11 @@ const AddSubjectForm = ({ subject, onClose }) => {
                 id="isPublic"
                 checked={isPublic}
                 onChange={(e) => setIsPublic(e.target.checked)}
-                className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                className="rounded border-gray-300 dark:border-gray-600 text-primary-600 focus:ring-primary-500"
               />
               <label
                 htmlFor="isPublic"
-                className="text-sm font-medium text-gray-700"
+                className="text-sm font-medium text-gray-700 dark:text-gray-300"
               >
                 Available for all users
               </label>
@@ -180,9 +180,9 @@ const AddSubjectForm = ({ subject, onClose }) => {
             <button
               type="button"
               onClick={handleClose}
-              className="flex-1 rounded-xl border border-gray-300
-                         py-2.5 text-sm font-medium text-gray-700
-                         hover:bg-gray-100 transition"
+              className="flex-1 rounded-xl border border-gray-300 dark:border-gray-600
+                         py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200
+                         hover:bg-gray-100 dark:hover:bg-gray-700 transition"
             >
               Cancel
             </button>
@@ -193,7 +193,7 @@ const AddSubjectForm = ({ subject, onClose }) => {
               className="flex-1 rounded-xl bg-primary-500
                          py-2.5 text-sm font-semibold text-white
                          hover:bg-primary-600 transition
-                         disabled:bg-gray-300 disabled:cursor-not-allowed"
+                         disabled:bg-gray-300 dark:disabled:bg-gray-600 disabled:cursor-not-allowed"
             >
               {isSubmitting
                 ? isEditMode

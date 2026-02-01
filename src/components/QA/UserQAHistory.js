@@ -62,51 +62,51 @@ const UserQAHistory = ({ data }) => {
     <div className="space-y-6">
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div className="bg-white dark:bg-dark-secondary rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-              <MessageCircle size={20} className="text-blue-600" />
+            <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
+              <MessageCircle size={20} className="text-blue-600 dark:text-blue-300" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                 {data?.total_questions || 0}
               </p>
-              <p className="text-sm text-gray-600">Total Questions</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Total Questions</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div className="bg-white dark:bg-dark-secondary rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-              <BookOpen size={20} className="text-green-600" />
+            <div className="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
+              <BookOpen size={20} className="text-green-600 dark:text-green-300" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                 {data?.pdfs_discussed || 0}
               </p>
-              <p className="text-sm text-gray-600">PDFs Discussed</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">PDFs Discussed</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div className="bg-white dark:bg-dark-secondary rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-              <Filter size={20} className="text-purple-600" />
+            <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
+              <Filter size={20} className="text-purple-600 dark:text-purple-300" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                 {Math.round((data?.avg_confidence || 0) * 100)}%
               </p>
-              <p className="text-sm text-gray-600">Avg Confidence</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Avg Confidence</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <div className="bg-white dark:bg-dark-secondary rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Search */}
           <div className="relative">
@@ -119,7 +119,7 @@ const UserQAHistory = ({ data }) => {
               placeholder="Search questions and answers..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="pl-10 pr-4 py-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-dark-primary dark:text-gray-200"
             />
           </div>
 
@@ -127,7 +127,7 @@ const UserQAHistory = ({ data }) => {
           <select
             value={selectedSubject}
             onChange={(e) => setSelectedSubject(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-dark-primary dark:text-gray-200"
           >
             <option value="all">All Subjects</option>
             {subjects.map((subject) => (
@@ -141,7 +141,7 @@ const UserQAHistory = ({ data }) => {
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-dark-primary dark:text-gray-200"
           >
             <option value="recent">Most Recent</option>
             <option value="oldest">Oldest First</option>
@@ -151,9 +151,9 @@ const UserQAHistory = ({ data }) => {
       </div>
 
       {/* Questions List */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-        <div className="p-6 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">
+      <div className="bg-white dark:bg-dark-secondary rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
             Questions & Answers ({filteredQuestions.length})
           </h2>
         </div>
@@ -161,10 +161,10 @@ const UserQAHistory = ({ data }) => {
           {filteredQuestions.length === 0 ? (
             <div className="text-center py-12">
               <MessageCircle size={48} className="text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
+              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
                 No questions found
               </h3>
-              <p className="text-gray-600">
+              <p className="text-gray-600 dark:text-gray-400">
                 {searchTerm || selectedSubject !== "all"
                   ? "Try adjusting your search or filters"
                   : "Start asking questions about your PDFs to see them here"}
@@ -178,7 +178,7 @@ const UserQAHistory = ({ data }) => {
                 return (
                   <div
                     key={question.question_id}
-                    className="border border-gray-200 rounded-lg p-4"
+                    className="border border-gray-200 dark:border-gray-700 rounded-lg p-4"
                   >
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center space-x-3">
@@ -189,19 +189,19 @@ const UserQAHistory = ({ data }) => {
                           }}
                         ></div>
                         <div>
-                          <h3 className="font-medium text-gray-900">
+                          <h3 className="font-medium text-gray-900 dark:text-gray-100">
                             {pdf?.filename}
                           </h3>
-                          <p className="text-sm text-gray-600">
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
                             {subject?.name} • Page {question.page_context}
                           </p>
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
                           {formatDate(question.timestamp)}
                         </p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-gray-500 dark:text-gray-500">
                           Confidence:{" "}
                           {Math.round(question.confidence_score * 100)}%
                         </p>
@@ -209,24 +209,24 @@ const UserQAHistory = ({ data }) => {
                     </div>
 
                     <div className="space-y-3">
-                      <div className="bg-blue-50 p-3 rounded-lg">
+                      <div className="bg-blue-50 dark:bg-blue-900 p-3 rounded-lg">
                         <div className="flex items-start space-x-2">
                           <MessageCircle
                             size={16}
-                            className="text-blue-600 mt-0.5"
+                            className="text-blue-600 dark:text-blue-300 mt-0.5"
                           />
                           <div>
-                            <p className="text-sm font-medium text-blue-800 mb-1">
+                            <p className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-1">
                               Question:
                             </p>
-                            <p className="text-sm text-blue-700">
+                            <p className="text-sm text-blue-700 dark:text-blue-300">
                               {question.question_text}
                             </p>
                           </div>
                         </div>
                       </div>
 
-                      <div className="bg-green-50 p-3 rounded-lg">
+                      <div className="bg-green-50 dark:bg-green-900 p-3 rounded-lg">
                         <div className="flex items-start space-x-2">
                           <div className="w-4 h-4 bg-green-600 rounded-full flex items-center justify-center mt-0.5">
                             <span className="text-white text-xs font-bold">
@@ -234,10 +234,10 @@ const UserQAHistory = ({ data }) => {
                             </span>
                           </div>
                           <div>
-                            <p className="text-sm font-medium text-green-800 mb-1">
+                            <p className="text-sm font-medium text-green-800 dark:text-green-200 mb-1">
                               Answer:
                             </p>
-                            <p className="text-sm text-green-700">
+                            <p className="text-sm text-green-700 dark:text-green-300">
                               {question.answer_text}
                             </p>
                           </div>
@@ -245,11 +245,11 @@ const UserQAHistory = ({ data }) => {
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-200">
-                      <button className="text-sm text-primary-600 hover:text-primary-700 font-medium">
+                    <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
+                      <button className="text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 font-medium">
                         Ask Follow-up
                       </button>
-                      <button className="text-sm text-gray-600 hover:text-gray-700">
+                      <button className="text-sm text-gray-600 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
                         Copy Answer
                       </button>
                     </div>

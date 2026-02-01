@@ -82,14 +82,14 @@ const UploadForm = () => {
       onClick={closeUploadForm}
     >
       <div
-        className="bg-white rounded-lg shadow-xl p-8 w-full max-w-md"
+        className="bg-white dark:bg-dark-secondary rounded-lg shadow-xl p-8 w-full max-w-md"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-800">Upload PDF</h2>
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Upload PDF</h2>
           <button
             onClick={closeUploadForm}
-            className="text-gray-500 hover:text-gray-800"
+            className="text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
           >
             <X size={24} />
           </button>
@@ -98,7 +98,7 @@ const UploadForm = () => {
           <div className="mb-4">
             <label
               htmlFor="title"
-              className="block text-gray-700 text-sm font-medium mb-2"
+              className="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-2"
             >
               Title
             </label>
@@ -107,13 +107,13 @@ const UploadForm = () => {
               id="title"
               placeholder="PDF Title"
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-dark-primary dark:text-gray-200"
             />
           </div>
           <div className="mb-4">
             <label
               htmlFor="subject"
-              className="block text-gray-700 text-sm font-medium mb-2"
+              className="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-2"
             >
               Subject
             </label>
@@ -121,7 +121,7 @@ const UploadForm = () => {
               id="subject"
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-dark-primary dark:text-gray-200"
             >
               <option value="" disabled>
                 Select a subject
@@ -136,7 +136,7 @@ const UploadForm = () => {
           <div className="mb-6">
             <label
               htmlFor="pdf-upload"
-              className="block text-gray-700 text-sm font-medium mb-2"
+              className="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-2"
             >
               PDF File
             </label>
@@ -145,10 +145,12 @@ const UploadForm = () => {
               id="pdf-upload"
               accept="application/pdf"
               onChange={handleFileChange}
-              className="w-full text-gray-700 bg-gray-50 rounded-lg border border-gray-300 cursor-pointer focus:outline-none
-                         file:bg-primary-50 file:text-primary-700 file:text-sm file:font-semibold
+              className="w-full text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-dark-primary rounded-lg border border-gray-300 dark:border-gray-600 cursor-pointer focus:outline-none
+                         file:bg-primary-50 file:text-primary-700
+                         file:dark:bg-primary-900 file:dark:text-primary-300
+                         file:text-sm file:font-semibold
                          file:py-2 file:px-4 file:border-0 file:mr-4
-                         hover:file:bg-primary-100"
+                         hover:file:bg-primary-100 dark:hover:file:bg-primary-800"
             />
           </div>
           <button

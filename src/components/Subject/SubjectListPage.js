@@ -59,7 +59,7 @@ const SubjectListPage = () => {
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Subjects</h1>
+        <h1 className="text-2xl font-bold dark:text-gray-100">Subjects</h1>
         <div className="flex items-center space-x-4">
           <button
             onClick={openAddSubjectForm}
@@ -71,7 +71,7 @@ const SubjectListPage = () => {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+      <div className="bg-white dark:bg-dark-secondary rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
         <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredSubjects.map((subject) => {
@@ -88,13 +88,13 @@ const SubjectListPage = () => {
               return (
                 <div
                   key={subject.id}
-                  className="border border-gray-200 border-l-4 rounded-lg p-5 hover:shadow-md transition-all bg-white flex flex-col"
+                  className="border border-gray-200 dark:border-gray-700 border-l-4 rounded-lg p-5 hover:shadow-md transition-all bg-white dark:bg-dark-primary flex flex-col"
                   style={{ borderLeftColor: subjectColor }}
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1 min-w-0 mr-2">
                       <h2
-                        className="text-lg font-bold text-gray-900 truncate"
+                        className="text-lg font-bold text-gray-900 dark:text-gray-100 truncate"
                         title={subject.name}
                       >
                         {subject.name}
@@ -103,21 +103,21 @@ const SubjectListPage = () => {
                     <div className="flex items-center space-x-1 flex-shrink-0">
                       <button
                         onClick={() => navigate(`/subject/${subject.id}`)}
-                        className="p-1.5 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-md transition-colors"
+                        className="p-1.5 text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-gray-700 rounded-md transition-colors"
                         title="View Details"
                       >
                         <Eye size={18} />
                       </button>
                       <button
                         onClick={() => handleEdit(subject)}
-                        className="p-1.5 text-gray-400 hover:text-yellow-600 hover:bg-yellow-50 rounded-md transition-colors"
+                        className="p-1.5 text-gray-400 hover:text-yellow-600 dark:hover:text-yellow-400 hover:bg-yellow-50 dark:hover:bg-gray-700 rounded-md transition-colors"
                         title="Edit Subject"
                       >
                         <Edit size={18} />
                       </button>
                       <button
                         onClick={() => handleDeleteClick(subject.id)}
-                        className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                        className="p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-700 rounded-md transition-colors"
                         title="Delete Subject"
                       >
                         <Trash2 size={18} />
@@ -126,18 +126,18 @@ const SubjectListPage = () => {
                   </div>
 
                   <div className="mb-4 flex-grow">
-                    <p className="text-sm text-gray-600 line-clamp-2 h-10">
+                    <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 h-10">
                       {subject.description || "No description provided."}
                     </p>
                   </div>
 
-                  <div className="space-y-3 pt-3 border-t border-gray-100 mt-auto">
+                  <div className="space-y-3 pt-3 border-t border-gray-100 dark:border-gray-700 mt-auto">
                     <div>
-                      <div className="flex justify-between text-xs font-medium text-gray-500 mb-1.5">
+                      <div className="flex justify-between text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">
                         <span>Progress</span>
                         <span>{avgProgress}%</span>
                       </div>
-                      <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                      <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-1.5 overflow-hidden">
                         <div
                           className="h-full rounded-full transition-all duration-500"
                           style={{
@@ -148,7 +148,7 @@ const SubjectListPage = () => {
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between text-xs text-gray-500">
+                    <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
                       <div className="flex items-center space-x-1.5">
                         <FileText size={14} />
                         <span>{fileCount} Files</span>
@@ -163,7 +163,7 @@ const SubjectListPage = () => {
               );
             })}
             {filteredSubjects.length === 0 && (
-              <div className="col-span-full text-center py-12 text-gray-500">
+              <div className="col-span-full text-center py-12 text-gray-500 dark:text-gray-400">
                 No subjects found matching your search.
               </div>
             )}

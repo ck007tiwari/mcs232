@@ -159,20 +159,20 @@ const Profile = () => {
       <div className="flex items-center space-x-4">
         <button
           onClick={() => navigate(-1)}
-          className="p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors"
+          className="p-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full transition-colors"
         >
-          <ArrowLeft size={24} className="text-gray-700" />
+          <ArrowLeft size={24} className="text-gray-700 dark:text-gray-200" />
         </button>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Profile</h1>
-          <p className="text-gray-600 mt-1">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Profile</h1>
+          <p className="text-gray-600 dark:text-gray-300 mt-1">
             Manage your account and view your learning progress
           </p>
         </div>
       </div>
 
       {/* Profile Card */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white dark:bg-dark-secondary rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
         <div className="bg-gradient-to-r from-primary-500 to-primary-600 px-6 py-8">
           <div className="flex items-center space-x-4">
             {user?.avatar && !imgError ? (
@@ -210,13 +210,13 @@ const Profile = () => {
 
         <div className="p-6">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-gray-900">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
               Personal Information
             </h3>
             {!isEditing ? (
               <button
                 onClick={() => setIsEditing(true)}
-                className="flex items-center space-x-2 text-primary-600 hover:text-primary-700"
+                className="flex items-center space-x-2 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
               >
                 <Edit size={16} />
                 <span>Edit</span>
@@ -232,7 +232,7 @@ const Profile = () => {
                 </button>
                 <button
                   onClick={handleCancel}
-                  className="flex items-center space-x-1 text-gray-600 hover:text-gray-700 px-3 py-1"
+                  className="flex items-center space-x-1 text-gray-600 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-100 px-3 py-1"
                 >
                   <X size={14} />
                   <span>Cancel</span>
@@ -243,7 +243,7 @@ const Profile = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Full Name
               </label>
               {isEditing ? (
@@ -253,18 +253,18 @@ const Profile = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, name: e.target.value })
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-dark-primary dark:text-gray-200"
                 />
               ) : (
-                <div className="flex items-center space-x-2 px-3 py-2 bg-gray-50 rounded-lg">
-                  <User size={16} className="text-gray-500" />
-                  <span className="text-gray-900">{user?.name}</span>
+                <div className="flex items-center space-x-2 px-3 py-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                  <User size={16} className="text-gray-500 dark:text-gray-400" />
+                  <span className="text-gray-900 dark:text-gray-200">{user?.name}</span>
                 </div>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Email Address
               </label>
               {isEditing ? (
@@ -274,33 +274,33 @@ const Profile = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, email: e.target.value })
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-dark-primary dark:text-gray-200"
                 />
               ) : (
-                <div className="flex items-center space-x-2 px-3 py-2 bg-gray-50 rounded-lg">
-                  <Mail size={16} className="text-gray-500" />
-                  <span className="text-gray-900">{user?.email}</span>
+                <div className="flex items-center space-x-2 px-3 py-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                  <Mail size={16} className="text-gray-500 dark:text-gray-400" />
+                  <span className="text-gray-900 dark:text-gray-200">{user?.email}</span>
                 </div>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Role
               </label>
-              <div className="flex items-center space-x-2 px-3 py-2 bg-gray-50 rounded-lg">
-                <Trophy size={16} className="text-gray-500" />
-                <span className="text-gray-900 capitalize">{user?.role}</span>
+              <div className="flex items-center space-x-2 px-3 py-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <Trophy size={16} className="text-gray-500 dark:text-gray-400" />
+                <span className="text-gray-900 dark:text-gray-200 capitalize">{user?.role}</span>
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Join Date
               </label>
-              <div className="flex items-center space-x-2 px-3 py-2 bg-gray-50 rounded-lg">
-                <Calendar size={16} className="text-gray-500" />
-                <span className="text-gray-900">
+              <div className="flex items-center space-x-2 px-3 py-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <Calendar size={16} className="text-gray-500 dark:text-gray-400" />
+                <span className="text-gray-900 dark:text-gray-200">
                   {new Date(user?.created_at).toLocaleDateString()}
                 </span>
               </div>
@@ -308,13 +308,13 @@ const Profile = () => {
           </div>
 
           {/* Change Password Section */}
-          <div className="mt-8 pt-6 border-t border-gray-200">
+          <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold text-gray-900">Security</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Security</h3>
               {!isChangingPassword ? (
                 <button
                   onClick={() => setIsChangingPassword(true)}
-                  className="flex items-center space-x-2 text-primary-600 hover:text-primary-700"
+                  className="flex items-center space-x-2 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
                 >
                   <Lock size={16} />
                   <span>Change Password</span>
@@ -337,7 +337,7 @@ const Profile = () => {
                         confirmPassword: "",
                       });
                     }}
-                    className="flex items-center space-x-1 text-gray-600 hover:text-gray-700 px-3 py-1"
+                    className="flex items-center space-x-1 text-gray-600 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-100 px-3 py-1"
                   >
                     <X size={14} />
                     <span>Cancel</span>
@@ -349,7 +349,7 @@ const Profile = () => {
             {isChangingPassword && (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Current Password
                   </label>
                   <div className="relative">
@@ -362,12 +362,12 @@ const Profile = () => {
                           currentPassword: e.target.value,
                         })
                       }
-                      className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      className="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-dark-primary dark:text-gray-200"
                     />
                     <button
                       type="button"
                       onClick={() => togglePasswordVisibility("current")}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                     >
                       {showPasswords.current ? (
                         <EyeOff size={16} />
@@ -378,7 +378,7 @@ const Profile = () => {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     New Password
                   </label>
                   <div className="relative">
@@ -391,12 +391,12 @@ const Profile = () => {
                           newPassword: e.target.value,
                         })
                       }
-                      className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      className="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-dark-primary dark:text-gray-200"
                     />
                     <button
                       type="button"
                       onClick={() => togglePasswordVisibility("new")}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                     >
                       {showPasswords.new ? (
                         <EyeOff size={16} />
@@ -407,7 +407,7 @@ const Profile = () => {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Confirm New Password
                   </label>
                   <div className="relative">
@@ -420,12 +420,12 @@ const Profile = () => {
                           confirmPassword: e.target.value,
                         })
                       }
-                      className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      className="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-dark-primary dark:text-gray-200"
                     />
                     <button
                       type="button"
                       onClick={() => togglePasswordVisibility("confirm")}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                     >
                       {showPasswords.confirm ? (
                         <EyeOff size={16} />
@@ -442,61 +442,61 @@ const Profile = () => {
       </div>
 
       {/* Learning Stats */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-        <div className="p-6 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">
+      <div className="bg-white dark:bg-dark-secondary rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
             Learning Statistics
           </h3>
         </div>
         <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="text-center">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                <BookOpen size={24} className="text-blue-600" />
+              <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-3">
+                <BookOpen size={24} className="text-blue-600 dark:text-blue-300" />
               </div>
-              <p className="text-2xl font-bold text-gray-900">
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                 {globalStats.totalPdfs}
               </p>
-              <p className="text-sm text-gray-600">Total PDFs</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Total PDFs</p>
             </div>
 
             <div className="text-center">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                <Trophy size={24} className="text-green-600" />
+              <div className="w-16 h-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto mb-3">
+                <Trophy size={24} className="text-green-600 dark:text-green-300" />
               </div>
-              <p className="text-2xl font-bold text-gray-900">
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                 {globalStats.completedPdfs}
               </p>
-              <p className="text-sm text-gray-600">Completed</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Completed</p>
             </div>
 
             <div className="text-center">
-              <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                <Clock size={24} className="text-purple-600" />
+              <div className="w-16 h-16 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center mx-auto mb-3">
+                <Clock size={24} className="text-purple-600 dark:text-purple-300" />
               </div>
-              <p className="text-2xl font-bold text-gray-900">
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                 {Math.round(globalStats.timeSpent / 60)}
               </p>
-              <p className="text-sm text-gray-600">Hours Studied</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Hours Studied</p>
             </div>
 
             <div className="text-center">
-              <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                <BookOpen size={24} className="text-orange-600" />
+              <div className="w-16 h-16 bg-orange-100 dark:bg-orange-900 rounded-full flex items-center justify-center mx-auto mb-3">
+                <BookOpen size={24} className="text-orange-600 dark:text-orange-300" />
               </div>
-              <p className="text-2xl font-bold text-gray-900">
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                 {globalStats.readPages}
               </p>
-              <p className="text-sm text-gray-600">Pages Read</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Pages Read</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Subject Progress */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-        <div className="p-6 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">
+      <div className="bg-white dark:bg-dark-secondary rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
             Subject Progress
           </h3>
         </div>
@@ -512,15 +512,15 @@ const Profile = () => {
                         className="w-4 h-4 rounded-full"
                         style={{ backgroundColor: subject.color || "#4f46e5" }}
                       ></div>
-                      <span className="font-medium text-gray-900">
+                      <span className="font-medium text-gray-900 dark:text-gray-200">
                         {subject.name}
                       </span>
                     </div>
-                    <span className="text-sm text-gray-600">
+                    <span className="text-sm text-gray-600 dark:text-gray-400">
                       {Math.round(stats.progress)}%
                     </span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                     <div
                       className="h-2 rounded-full transition-all"
                       style={{
@@ -529,7 +529,7 @@ const Profile = () => {
                       }}
                     ></div>
                   </div>
-                  <div className="flex justify-between text-xs text-gray-500 mt-1">
+                  <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
                     <span>
                       {stats.completedPdfs}/{stats.totalPdfs} PDFs
                     </span>

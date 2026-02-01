@@ -182,14 +182,14 @@ const Dashboard = () => {
         {stats.map((stat, index) => (
           <div
             key={index}
-            className="bg-white rounded-xl p-6 shadow-sm border border-gray-200"
+            className="bg-white dark:bg-dark-secondary rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700"
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-600 text-sm font-medium">
+                <p className="text-gray-600 dark:text-gray-300 text-sm font-medium">
                   {stat.title}
                 </p>
-                <p className="text-2xl font-bold text-gray-900 mt-1">
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
                   {stat.value}
                 </p>
               </div>
@@ -224,15 +224,15 @@ const Dashboard = () => {
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Subjects Overview */}
-        <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200">
-          <div className="p-6 border-b border-gray-200">
+        <div className="lg:col-span-2 bg-white dark:bg-dark-secondary rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+          <div className="p-6 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                 Your Subjects
               </h2>
               <Link
                 to="/subjects"
-                className="text-primary-600 hover:text-primary-700 text-sm font-medium flex items-center space-x-1"
+                className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 text-sm font-medium flex items-center space-x-1"
               >
                 <span>View all</span>
                 <ArrowRight size={16} />
@@ -267,7 +267,7 @@ const Dashboard = () => {
                   <Link
                     key={`${subjectId || "sub"}-${index}`}
                     to={`/subject/${subjectId}`}
-                    className="p-4 border border-gray-200 rounded-lg hover:border-primary-300 hover:shadow-md transition-all group"
+                    className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-primary-300 dark:hover:border-primary-500 hover:shadow-md transition-all group"
                   >
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center space-x-3">
@@ -275,7 +275,7 @@ const Dashboard = () => {
                           className="w-4 h-4 rounded-full"
                           style={{ backgroundColor: subject.color }}
                         ></div>
-                        <h3 className="font-medium text-gray-900 group-hover:text-primary-600">
+                        <h3 className="font-medium text-gray-900 dark:text-gray-100 group-hover:text-primary-600 dark:group-hover:text-primary-400">
                           {subject.name}
                         </h3>
                       </div>
@@ -284,18 +284,18 @@ const Dashboard = () => {
                         className="text-gray-400 group-hover:text-primary-500"
                       />
                     </div>
-                    <p className="text-sm text-gray-600 mb-3">
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
                       {subject.description}
                     </p>
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-500">
+                      <span className="text-gray-500 dark:text-gray-400">
                         {completedPdfs}/{totalPdfs} PDFs
                       </span>
-                      <span className="text-gray-500">
+                      <span className="text-gray-500 dark:text-gray-400">
                         {subjectProgress}% complete
                       </span>
                     </div>
-                    <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
+                    <div className="mt-2 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                       <div
                         className="h-2 rounded-full transition-all"
                         style={{
@@ -313,47 +313,47 @@ const Dashboard = () => {
       </div>
 
       {/* Quick Actions */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">
+      <div className="bg-white dark:bg-dark-secondary rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
           Quick Actions
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <button
             onClick={() => openUploadForm(true)}
-            className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-all group"
+            className="flex items-center space-x-3 p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-primary-300 dark:hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-gray-700 transition-all group"
           >
-            <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center group-hover:bg-primary-200">
-              <Upload size={20} className="text-primary-600" />
+            <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900 rounded-lg flex items-center justify-center group-hover:bg-primary-200 dark:group-hover:bg-primary-800">
+              <Upload size={20} className="text-primary-600 dark:text-primary-400" />
             </div>
             <div className="text-left">
-              <h3 className="font-medium text-gray-900">Upload PDF</h3>
-              <p className="text-sm text-gray-600">Add new study material</p>
+              <h3 className="font-medium text-gray-900 dark:text-gray-100">Upload PDF</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Add new study material</p>
             </div>
           </button>
 
           <Link
             to="/qa-history"
-            className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-all group"
+            className="flex items-center space-x-3 p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-primary-300 dark:hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-gray-700 transition-all group"
           >
-            <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center group-hover:bg-green-200">
-              <MessageCircle size={20} className="text-green-600" />
+            <div className="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center group-hover:bg-green-200 dark:group-hover:bg-green-800">
+              <MessageCircle size={20} className="text-green-600 dark:text-green-400" />
             </div>
             <div className="text-left">
-              <h3 className="font-medium text-gray-900">Ask Question</h3>
-              <p className="text-sm text-gray-600">Get AI-powered answers</p>
+              <h3 className="font-medium text-gray-900 dark:text-gray-100">Ask Question</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Get AI-powered answers</p>
             </div>
           </Link>
 
           <Link
             to="/profile"
-            className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-all group"
+            className="flex items-center space-x-3 p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-primary-300 dark:hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-gray-700 transition-all group"
           >
-            <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-purple-200">
-              <Users size={20} className="text-purple-600" />
+            <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center group-hover:bg-purple-200 dark:group-hover:bg-purple-800">
+              <Users size={20} className="text-purple-600 dark:text-purple-400" />
             </div>
             <div className="text-left">
-              <h3 className="font-medium text-gray-900">View Profile</h3>
-              <p className="text-sm text-gray-600">Manage your account</p>
+              <h3 className="font-medium text-gray-900 dark:text-gray-100">View Profile</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Manage your account</p>
             </div>
           </Link>
         </div>

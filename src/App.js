@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -20,6 +20,7 @@ import SubjectListPage from "./components/Subject/SubjectListPage";
 import Dashboard from "./components/Dashboard/Dashboard";
 import AdminDashboard from "./components/Admin/AdminDashboard";
 import QAHistory from "./components/QA/QAHistory";
+import ThemeContext from "./context/ThemeContext";
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated } = useApp();
@@ -50,58 +51,62 @@ const AuthRoute = ({ children }) => {
 
 const AppRoutes = () => {
   const { isAdmin } = useApp();
+  const { theme } = useContext(ThemeContext);
+
   return (
-    <Router>
-      <Toast />
-      <Routes>
-        <Route
-          path="/login"
-          element={
-            <AuthRoute>
-              <Login />
-            </AuthRoute>
-          }
-        />
-        <Route
-          path="/register"
-          element={
-            <AuthRoute>
-              <Register />
-            </AuthRoute>
-          }
-        />
-        <Route path="/unauthorized" element={<Unauthorized />} />
-        <Route path="/404" element={<NotFound />} />
-        <Route
-          path="/"
-          element={
-            <ProtectedRoute>
-              <Layout />
-            </ProtectedRoute>
-          }
-        >
-          <Route index element={<Navigate to="/dashboard" />} />
+    <div className={theme}>
+      <Router>
+        <Toast />
+        <Routes>
           <Route
-            path="dashboard"
-            element={isAdmin ? <AdminDashboard /> : <Dashboard />}
-          />
-          <Route path="subject/:subjectId" element={<SubjectView />} />
-          <Route path="pdf/:pdfId" element={<PdfViewer />} />
-          <Route path="profile" element={<Profile />} />
-          <Route path="subjects" element={<SubjectListPage />} />
-          <Route path="qa" element={<QAHistory />} />
-          <Route
-            path="admin"
+            path="/login"
             element={
-              <AdminRoute>
-                <AdminDashboard />
-              </AdminRoute>
+              <AuthRoute>
+                <Login />
+              </AuthRoute>
             }
           />
-        </Route>
-        <Route path="*" element={<Navigate to="/404" replace />} />
-      </Routes>
-    </Router>
+          <Route
+            path="/register"
+            element={
+              <AuthRoute>
+                <Register />
+              </AuthRoute>
+            }
+          />
+          <Route path="/unauthorized" element={<Unauthorized />} />
+          <Route path="/404" element={<NotFound />} />
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <Layout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<Navigate to="/dashboard" />} />
+            <Route
+              path="dashboard"
+              element={isAdmin ? <AdminDashboard /> : <Dashboard />}
+            />
+            <Route path="subject/:subjectId" element={<SubjectView />} />
+            <Route path="pdf/:pdfId" element={<PdfViewer />} />
+            <Route path="profile" element={<Profile />} />
+            <Route path="subjects" element={<SubjectListPage />} />
+            <Route path="qa" element={<QAHistory />} />
+            <Route
+              path="admin"
+              element={
+                <AdminRoute>
+                  <AdminDashboard />
+                </AdminRoute>
+              }
+            />
+          </Route>
+          <Route path="*" element={<Navigate to="/404" replace />} />
+        </Routes>
+      </Router>
+    </div>
   );
 };
 

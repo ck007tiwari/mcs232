@@ -27,8 +27,8 @@ const AdminQAStats = ({ stats, onUserSelect }) => {
             <Users size={24} />
           </div>
           <div className="stat-card-info">
-            <h2>{stats?.total_users || 0}</h2>
-            <p>Total Users</p>
+            <h2 className="dark:text-gray-100">{stats?.total_users || 0}</h2>
+            <p className="dark:text-gray-400">Total Users</p>
           </div>
         </div>
         <div className="stat-card">
@@ -36,8 +36,8 @@ const AdminQAStats = ({ stats, onUserSelect }) => {
             <HelpCircle size={24} />
           </div>
           <div className="stat-card-info">
-            <h2>{stats?.total_questions || 0}</h2>
-            <p>Total Questions</p>
+            <h2 className="dark:text-gray-100">{stats?.total_questions || 0}</h2>
+            <p className="dark:text-gray-400">Total Questions</p>
           </div>
         </div>
         <div className="stat-card">
@@ -45,15 +45,15 @@ const AdminQAStats = ({ stats, onUserSelect }) => {
             <BookOpen size={24} />
           </div>
           <div className="stat-card-info">
-            <h2>{stats?.total_subjects || 0}</h2>
-            <p>Total Subjects</p>
+            <h2 className="dark:text-gray-100">{stats?.total_subjects || 0}</h2>
+            <p className="dark:text-gray-400">Total Subjects</p>
           </div>
         </div>
       </div>
 
       <div className="user-qa-table-container">
         <div className="user-qa-table-header">
-          <h2>User Q&A Activity</h2>
+          <h2 className="dark:text-gray-100">User Q&A Activity</h2>
         </div>
         <div className="user-qa-table-filters">
           <div className="search-input">
@@ -63,16 +63,17 @@ const AdminQAStats = ({ stats, onUserSelect }) => {
               placeholder="Search by name or email"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              className="dark:bg-dark-primary dark:text-gray-200"
             />
           </div>
         </div>
         <table className="user-qa-table">
           <thead>
             <tr>
-              <th>User</th>
-              <th className="questions-count">Questions</th>
-              <th className="subjects-count">Subjects</th>
-              <th className="last-active">Last Active</th>
+              <th className="dark:text-gray-300">User</th>
+              <th className="questions-count dark:text-gray-300">Questions</th>
+              <th className="subjects-count dark:text-gray-300">Subjects</th>
+              <th className="last-active dark:text-gray-300">Last Active</th>
               <th></th>
             </tr>
           </thead>
@@ -85,16 +86,16 @@ const AdminQAStats = ({ stats, onUserSelect }) => {
                       src={`https://ui-avatars.com/api/?name=${user.user_name}&background=random`}
                       alt={user.user_name}
                     />
-                    <div>
+                    <div className="dark:text-gray-200">
                       {user.user_name}
                       <br />
-                      <span>{user.user_email}</span>
+                      <span className="dark:text-gray-400">{user.user_email}</span>
                     </div>
                   </div>
                 </td>
-                <td className="questions-count">{user.questions_count}</td>
-                <td className="subjects-count">{user.subjects_count}</td>
-                <td className="last-active">{formatDate(user.last_active)}</td>
+                <td className="questions-count dark:text-gray-200">{user.questions_count}</td>
+                <td className="subjects-count dark:text-gray-200">{user.subjects_count}</td>
+                <td className="last-active dark:text-gray-400">{formatDate(user.last_active)}</td>
                 <td>
                   <span
                     className="view-details-btn"
