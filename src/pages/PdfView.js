@@ -14,8 +14,8 @@ import {
   File,
   Files,
 } from "lucide-react";
-import { useApp } from "../../context/AppContext";
-import Tooltip from "../../utils/tooltip";
+import { useApp } from "../context/AppContext";
+import Tooltip from "../utils/tooltip";
 
 // Configure PDF worker
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;

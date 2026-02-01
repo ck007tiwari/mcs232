@@ -1,9 +1,9 @@
 import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { useApp } from "../../context/AppContext";
+import { useApp } from "../context/AppContext";
 import { Eye, Edit, Trash2, PlusCircle, FileText, Clock } from "lucide-react";
-import AddSubjectForm from "./AddSubjectForm";
-import ConfirmationDialog from "../Layout/ConfirmationDialog";
+import AddSubjectForm from "../components/Subject/AddSubjectForm";
+import ConfirmationDialog from "../components/Layout/ConfirmationDialog";
 
 const SubjectListPage = () => {
   const { subjects, openAddSubjectForm, deleteSubject, searchQuery } = useApp();

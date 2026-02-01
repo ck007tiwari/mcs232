@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { useApp } from "../../context/AppContext";
-import AdminQAStats from "./AdminQAStats";
-import UserQAHistory from "./UserQAHistory";
-import { getQAHistory } from "../../context/subjectApi";
-import "./QAHistory.css";
+import { useApp } from "../context/AppContext";
+import AdminQAStats from "../components/QA/AdminQAStats";
+import UserQAHistory from "../components/QA/UserQAHistory";
+import { getQAHistory } from "../context/subjectApi";
+import "../components/QA/QAHistory.css";
 
 const QAHistory = () => {
   const { isAdmin } = useApp();

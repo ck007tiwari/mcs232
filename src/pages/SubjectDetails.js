@@ -8,8 +8,8 @@ import {
   Play,
   Trash2,
 } from "lucide-react";
-import { useApp } from "../../context/AppContext";
-import ConfirmationDialog from "../Layout/ConfirmationDialog";
+import { useApp } from "../context/AppContext";
+import ConfirmationDialog from "../components/Layout/ConfirmationDialog";
 
 const SubjectView = () => {
   const { subjectId } = useParams();

@@ -12,10 +12,10 @@ import {
   ChevronRight,
   Loader,
 } from "lucide-react";
-import { useApp } from "../../context/AppContext";
-import ConfirmationDialog from "../Layout/ConfirmationDialog";
+import { useApp } from "../context/AppContext";
+import ConfirmationDialog from "../components/Layout/ConfirmationDialog";
 import { useNavigate } from "react-router-dom";
-import StatsCard from "./StatsCard";
+import StatsCard from "../components/Admin/StatsCard";
 
 const AdminDashboard = () => {
   const { subjects, questions, isAdmin, allUsers, deleteUser, getUserStats } =
