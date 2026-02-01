@@ -1,14 +1,14 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, {
+  useContext,
+  createContext,
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+} from "react";
 import axios from "axios";
 import api from "./api";
-import {
-  dummySubjects,
-  dummyPdfs,
-  dummyProgress,
-  dummyQuestions,
-  dummyChartData,
-} from "../data/dummyData";
-import API_BASE_URL from "./envVariables";
+
 import {
   createSubject,
   getSubjects,
@@ -16,6 +16,9 @@ import {
   updateSubject,
   uploadPdfToSubject,
   getSubjectById,
+  updatePdfProgress,
+  getPdfProgress,
+  deletePdfFromSubject,
 } from "./subjectApi";
 
 const AppContext = createContext();
@@ -35,11 +38,8 @@ export const AppProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(
     !!localStorage.getItem("token"),
   );
-  const [subjects, setSubjects] = useState(dummySubjects);
-  const [pdfs, setPdfs] = useState(dummyPdfs);
-  const [progress, setProgress] = useState(dummyProgress);
-  const [questions, setQuestions] = useState(dummyQuestions);
-  const [chartData] = useState(dummyChartData);
+  const [subjects, setSubjects] = useState([]);
+  const [questions, setQuestions] = useState([]);
   const [currentPdf, setCurrentPdf] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isUploadFormOpen, setUploadFormOpen] = useState(false);
@@ -50,42 +50,79 @@ export const AppProvider = ({ children }) => {
     message: "",
     type: "info",
   });
+  const [subjectUpdateTrigger, setSubjectUpdateTrigger] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [allUsers, setAllUsers] = useState([]);
 
-  const showToast = (message, type = "info") => {
+  const showToast = useCallback((message, type = "info") => {
     setToast({ show: true, message, type });
-  };
+  }, []);
 
-  const hideToast = () => {
+  const hideToast = useCallback(() => {
     setToast({ show: false, message: "", type: "info" });
-  };
+  }, []);
 
-  const openUploadForm = (subjectId = null) => {
+  const openUploadForm = useCallback((subjectId = null) => {
     setUploadSubjectId(subjectId);
     setUploadFormOpen(true);
-  };
-  const closeUploadForm = () => {
+  }, []);
+
+  const closeUploadForm = useCallback(() => {
     setUploadFormOpen(false);
     setUploadSubjectId(null);
-  };
-  const openAddSubjectForm = () => setAddSubjectFormOpen(true);
-  const closeAddSubjectForm = () => setAddSubjectFormOpen(false);
+  }, []);
 
-  useEffect(() => {
-    const fetchSubjects = async () => {
-      if (isAuthenticated) {
-        try {
-          const data = await getSubjects();
-          setSubjects(data);
-        } catch (error) {
-          console.error("Error fetching subjects:", error);
-        }
+  const openAddSubjectForm = useCallback(() => setAddSubjectFormOpen(true), []);
+  const closeAddSubjectForm = useCallback(
+    () => setAddSubjectFormOpen(false),
+    [],
+  );
+
+  const logout = useCallback(() => {
+    setIsAuthenticated(false);
+    setUser(null);
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    localStorage.removeItem("refresh");
+  }, []);
+
+  // Fetch subjects from backend
+  const fetchSubjects = useCallback(async () => {
+    if (isAuthenticated) {
+      try {
+        const { data } = await getSubjects();
+        setSubjects(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error("Error fetching subjects:", error);
       }
-    };
-    fetchSubjects();
+    }
   }, [isAuthenticated]);
 
+  const getAllUsers = useCallback(async () => {
+    if (user?.role === "admin") {
+      try {
+        const { data } = await api.get("/users/");
+        setAllUsers(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (isAuthenticated && fetchSubjects) {
+      fetchSubjects();
+    }
+  }, [fetchSubjects, isAuthenticated]);
+
+  useEffect(() => {
+    if (isAuthenticated && user?.role === "admin") {
+      getAllUsers();
+    }
+  }, [isAuthenticated, user, getAllUsers]);
+
   //signup function
-  const signup = async (user) => {
+  const signup = useCallback(async (user) => {
     const { name, email, password, role } = user;
     try {
       const { data } = await api.post("/users/register/", {
@@ -111,10 +148,10 @@ export const AppProvider = ({ children }) => {
       setIsAuthenticated(false);
       return false;
     }
-  };
+  }, []);
 
   // Authentication functions
-  const login = async (email, password) => {
+  const login = useCallback(async (email, password) => {
     if (email && password) {
       try {
         const { data } = await api.post("/users/login/", {
@@ -133,147 +170,136 @@ export const AppProvider = ({ children }) => {
         localStorage.setItem("token", data.access);
         localStorage.setItem("refresh", data.refresh);
         setIsAuthenticated(true);
-        return true;
+        return { success: true };
       } catch (error) {
         console.error("Login failed:", error);
         setIsAuthenticated(false);
-        return false;
+        return {
+          success: false,
+          message:
+            error.response?.data?.detail ||
+            error.response?.data?.message ||
+            "Invalid email or password",
+        };
       }
     }
-    return false;
-  };
+    return { success: false, message: "Email and password are required" };
+  }, []);
 
   // update user profile email and name function
-  const updateProfile = async (email, username) => {
-    if (email && username) {
-      try {
-        const { data } = await api.put("/users/profile/", {
-          email,
-          username,
-        });
+  const updateProfile = useCallback(
+    async (email, username) => {
+      if (email && username) {
+        try {
+          const { data } = await api.put("/users/profile/", {
+            email,
+            username,
+          });
 
-        if (!data) {
-          throw new Error("Invalid response from server");
+          if (!data) {
+            throw new Error("Invalid response from server");
+          }
+
+          const updatedUser = { ...data, name: data.username };
+          delete updatedUser.username;
+          showToast("Profile updated successfully", "success");
+          setUser(updatedUser);
+          localStorage.setItem("user", JSON.stringify(updatedUser));
+        } catch (error) {
+          console.error("Update profile failed:", error);
+          showToast("Failed to update profile", "error");
         }
-
-        const updatedUser = { ...data, name: data.username };
-        delete updatedUser.username;
-        showToast("Profile updated successfully", "success");
-        setUser(updatedUser);
-        localStorage.setItem("user", JSON.stringify(updatedUser));
-      } catch (error) {
-        console.error("Update profile failed:", error);
-        showToast("Failed to update profile", "error");
       }
-    }
-  };
+    },
+    [showToast],
+  );
 
   // Change password function
-  const changePassword = async (oldPassword, newPassword) => {
+  const changePassword = useCallback(
+    async (oldPassword, newPassword) => {
+      try {
+        await api.put("/users/change-password/", {
+          old_password: oldPassword,
+          new_password: newPassword,
+        });
+        showToast("Password changed successfully", "success");
+        // it should return to login page after password change and logout user
+        logout();
+        return true;
+      } catch (error) {
+        console.error("Change password failed:", error);
+        showToast(
+          error.response?.data?.message || "Failed to change password",
+          "error",
+        );
+        return false;
+      }
+    },
+    [logout, showToast],
+  );
+
+  const addSubject = useCallback(
+    async (subject) => {
+      try {
+        const { data, status } = await createSubject(subject);
+        if (status !== 201) {
+          return showToast("Failed to add subject", "error");
+        }
+        fetchSubjects();
+        showToast("Subject added successfully", "success");
+        return { success: true };
+      } catch (error) {
+        console.error("Error adding subject:", error);
+        return {
+          success: false,
+          message: error.response?.data?.message || "Failed to add subject",
+        };
+      }
+    },
+    [fetchSubjects, showToast],
+  );
+
+  const editSubject = useCallback(
+    async (subjectId, updatedSubject) => {
+      try {
+        const { status } = await updateSubject(subjectId, updatedSubject);
+        if (status !== 200) {
+          return showToast("Failed to update subject", "error");
+        }
+        fetchSubjects();
+        return { success: true };
+      } catch (error) {
+        console.error("Error updating subject:", error);
+        return {
+          success: false,
+          message: error.response?.data?.message || "Failed to update subject",
+        };
+      }
+    },
+    [fetchSubjects],
+  );
+
+  const deleteSubject = useCallback(
+    async (subjectId) => {
+      try {
+        const { status } = await deleteSubjectApi(subjectId);
+        if (status !== 204) {
+          return showToast("Failed to delete subject", "error");
+        }
+        fetchSubjects();
+      } catch (error) {
+        console.error("Error deleting subject:", error);
+      }
+    },
+    [fetchSubjects],
+  );
+
+  const getSubjectDetails = useCallback(async (subjectId) => {
     try {
-      await api.put("/users/change-password/", {
-        old_password: oldPassword,
-        new_password: newPassword,
-      });
-      showToast("Password changed successfully", "success");
-      // it should return to login page after password change and logout user
-      logout();
-      return true;
-    } catch (error) {
-      console.error("Change password failed:", error);
-      showToast(
-        error.response?.data?.message || "Failed to change password",
-        "error",
-      );
-      return false;
-    }
-  };
-
-  const logout = () => {
-    setIsAuthenticated(false);
-    setUser(null);
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
-    localStorage.removeItem("refresh");
-  };
-
-  // PDF functions
-  const getPdfsBySubject = (subjectId) => {
-    return pdfs.filter((pdf) => pdf.subjectId === subjectId);
-  };
-
-  const getProgressByPdf = (pdfId) => {
-    return progress.find((p) => p.pdfId === pdfId);
-  };
-
-  const getQuestionsByPdf = (pdfId) => {
-    return questions.filter((q) => q.pdfId === pdfId);
-  };
-
-  const addPdf = (pdf) => {
-    setPdfs((prev) => [...prev, pdf]);
-  };
-
-  const deletePdf = (pdfId) => {
-    setPdfs((prev) => prev.filter((p) => p.pdfId !== pdfId));
-  };
-
-  const addSubject = async (subject) => {
-    try {
-      const data = await createSubject(subject);
-
-      setSubjects((prev) => [...prev, data]);
-      return { success: true };
-    } catch (error) {
-      console.error("Error adding subject:", error);
-      return {
-        success: false,
-        message: error.response?.data?.message || "Failed to add subject",
-      };
-    }
-  };
-
-  const editSubject = async (subjectId, updatedSubject) => {
-    try {
-      const data = await updateSubject(subjectId, updatedSubject);
-      setSubjects((prev) => prev.map((s) => (s.id === subjectId ? data : s)));
-      return { success: true };
-    } catch (error) {
-      console.error("Error updating subject:", error);
-      return {
-        success: false,
-        message: error.response?.data?.message || "Failed to update subject",
-      };
-    }
-  };
-
-  const deleteSubject = async (subjectId) => {
-    try {
-      console.log(subjectId);
-      await deleteSubjectApi(subjectId);
-      setSubjects((prev) => prev.filter((s) => s.id !== subjectId));
-    } catch (error) {
-      console.error("Error deleting subject:", error);
-    }
-  };
-
-  const uploadPdf = async (pdfData) => {
-    try {
-      const data = await uploadPdfToSubject(pdfData);
-      setPdfs((prev) => [...prev, data]);
-      return { success: true };
-    } catch (error) {
-      console.error("Error uploading PDF:", error);
-      return {
-        success: false,
-        message: error.response?.data?.message || "Failed to upload PDF",
-      };
-    }
-  };
-
-  const getSubjectDetails = async (subjectId) => {
-    try {
-      const data = await getSubjectById(subjectId);
+      const { data, status } = await getSubjectById(subjectId);
+      if (status !== 200) {
+        return showToast("Failed to fetch subject details", "error");
+      }
       return { success: true, data };
     } catch (error) {
       console.error("Error fetching subject details:", error);
@@ -282,97 +308,243 @@ export const AppProvider = ({ children }) => {
         message: error.response?.data?.message || "Failed to fetch subject",
       };
     }
-  };
+  }, []);
+
+  const uploadPdf = useCallback(
+    async (pdfData) => {
+      try {
+        const { status } = await uploadPdfToSubject(pdfData);
+        if (status !== 201) {
+          return showToast("Failed to upload PDF", "error");
+        }
+        showToast("PDF uploaded successfully", "success");
+        setSubjectUpdateTrigger((prev) => prev + 1);
+        return { success: true };
+      } catch (error) {
+        console.error("Error uploading PDF:", error);
+        return {
+          success: false,
+          message: error.response?.data?.message || "Failed to upload PDF",
+        };
+      }
+    },
+    [fetchSubjects, showToast],
+  );
+
+  const deletePdf = useCallback(
+    async (pdfId, subjectId) => {
+      try {
+        const { status } = await deletePdfFromSubject(pdfId);
+        if (status !== 204) {
+          return showToast("Failed to delete PDF", "error");
+        }
+        showToast("PDF deleted successfully", "success");
+        fetchSubjects();
+        return { success: true };
+      } catch (error) {
+        console.error("Error deleting PDF:", error);
+        return {
+          success: false,
+          message: error.response?.data?.message || "Failed to delete PDF",
+        };
+      }
+    },
+    [fetchSubjects, showToast],
+  );
+
+  const deleteUser = useCallback(
+    async (userId) => {
+      try {
+        await api.delete(`/users/${userId}/`);
+        showToast("User deleted successfully", "success");
+        getAllUsers();
+        return { success: true };
+      } catch (error) {
+        console.error("Error deleting user:", error);
+        showToast("Failed to delete user", "error");
+        return { success: false };
+      }
+    },
+    [getAllUsers, showToast],
+  );
+
+  const getUserStats = useCallback(async (userId) => {
+    try {
+      const { data } = await api.get(`/users/${userId}/stats/`);
+      return data;
+    } catch (error) {
+      console.error("Error fetching user stats:", error);
+      return null;
+    }
+  }, []);
+
+  const getDashboardStats = useCallback(async () => {
+    try {
+      const { data } = await api.get("/users/dashboard/stats/");
+      return data;
+    } catch (error) {
+      console.error("Error fetching dashboard stats:", error);
+      return null;
+    }
+  }, []);
 
   // Progress functions
-  const updateProgress = (pdfId, newProgress) => {
-    setProgress((prev) =>
-      prev.map((p) => (p.pdfId === pdfId ? { ...p, ...newProgress } : p)),
-    );
-  };
+  const updateProgress = useCallback(async (pdfId, newProgress) => {
+    try {
+      const { status } = await updatePdfProgress(pdfId, newProgress);
+
+      if (status !== 200) {
+        return showToast("Failed to update progress", "error");
+      }
+      fetchSubjects();
+    } catch (error) {
+      console.error("Error saving progress:", error);
+    }
+  }, []);
+
+  // get file progress function
+  const getFileProgress = useCallback(async (pdfId) => {
+    try {
+      return await getPdfProgress(pdfId);
+    } catch (error) {
+      console.error("Error fetching file progress:", error);
+      return null;
+    }
+  }, []);
 
   // Question functions
-  const askQuestion = async (pdfId, questionText, pageContext) => {
-    const newQuestion = {
-      questionId: `q_${Date.now()}`,
-      userId: user.userId,
-      pdfId,
-      questionText,
-      answerText:
-        "This is a simulated AI response. In the real application, this would be generated by the AI service based on the PDF content and context.",
-      pageContext,
-      confidenceScore: 0.85 + Math.random() * 0.15,
-      timestamp: new Date().toISOString(),
-    };
-
-    try {
-      const res = await axios.post("http://localhost:5000/api/qa", {
+  const askQuestion = useCallback(
+    async (pdfId, questionText, pageContext) => {
+      const newQuestion = {
+        questionId: `q_${Date.now()}`,
+        userId: user.userId,
         pdfId,
         questionText,
+        answerText:
+          "This is a simulated AI response. In the real application, this would be generated by the AI service based on the PDF content and context.",
         pageContext,
-      });
-      newQuestion.answerText = res.data.answerText;
-      newQuestion.confidenceScore = res.data.confidenceScore;
-    } catch (error) {
-      console.error("Error asking question:", error);
-      newQuestion.answerText =
-        "Sorry, I encountered an error trying to answer your question.";
-    }
+        confidenceScore: 0.85 + Math.random() * 0.15,
+        timestamp: new Date().toISOString(),
+      };
 
-    setQuestions((prev) => [newQuestion, ...prev]);
-    return newQuestion;
-  };
+      try {
+        const res = await axios.post("http://localhost:5000/api/qa", {
+          pdfId,
+          questionText,
+          pageContext,
+        });
+        newQuestion.answerText = res.data.answerText;
+        newQuestion.confidenceScore = res.data.confidenceScore;
+      } catch (error) {
+        console.error("Error asking question:", error);
+        newQuestion.answerText =
+          "Sorry, I encountered an error trying to answer your question.";
+      }
 
-  const value = {
-    // State
-    user,
-    isAuthenticated,
-    subjects,
-    pdfs,
-    progress,
-    questions,
-    chartData,
-    currentPdf,
-    sidebarOpen,
-    isUploadFormOpen,
-    isAddSubjectFormOpen,
-    uploadSubjectId,
-    toast,
-    //files
-    uploadPdf,
+      setQuestions((prev) => [newQuestion, ...prev]);
+      return newQuestion;
+    },
+    [user],
+  );
 
-    // Setters
-    setCurrentPdf,
-    setSidebarOpen,
+  const isAdmin = useMemo(() => user?.role === "admin", [user]);
 
-    // users
-    login,
-    signup,
-    logout,
-    updateProfile,
-    changePassword,
+  const value = useMemo(
+    () => ({
+      // State
+      user,
+      isAuthenticated,
+      subjects,
+      isAdmin,
+      questions,
+      currentPdf,
+      sidebarOpen,
+      isUploadFormOpen,
+      isAddSubjectFormOpen,
+      uploadSubjectId,
+      toast,
+      subjectUpdateTrigger,
+      searchQuery,
+      setSearchQuery,
+      allUsers,
+      //files
+      uploadPdf,
 
-    // Functions
-    showToast,
-    hideToast,
-    openUploadForm,
-    closeUploadForm,
-    openAddSubjectForm,
-    closeAddSubjectForm,
+      // Setters
+      setCurrentPdf,
+      setSidebarOpen,
 
-    // PDFs
-    getPdfsBySubject,
-    getProgressByPdf,
-    getQuestionsByPdf,
-    getSubjectDetails,
-    addPdf,
-    deletePdf,
-    addSubject,
-    editSubject,
-    deleteSubject,
-    updateProgress,
-    askQuestion,
-  };
+      // users
+      login,
+      signup,
+      logout,
+      updateProfile,
+      changePassword,
+
+      // Functions
+      showToast,
+      hideToast,
+      openUploadForm,
+      closeUploadForm,
+      openAddSubjectForm,
+      closeAddSubjectForm,
+
+      // PDFs
+      getSubjectDetails,
+      addSubject,
+      editSubject,
+      deleteSubject,
+      deletePdf,
+      updateProgress,
+      getAllUsers,
+      deleteUser,
+      getUserStats,
+      getDashboardStats,
+      getFileProgress,
+      askQuestion,
+    }),
+    [
+      user,
+      isAuthenticated,
+      subjects,
+      isAdmin,
+      questions,
+      currentPdf,
+      sidebarOpen,
+      isUploadFormOpen,
+      isAddSubjectFormOpen,
+      uploadSubjectId,
+      toast,
+      subjectUpdateTrigger,
+      searchQuery,
+      uploadPdf,
+      allUsers,
+      setCurrentPdf,
+      setSidebarOpen,
+      login,
+      signup,
+      logout,
+      updateProfile,
+      changePassword,
+      showToast,
+      hideToast,
+      openUploadForm,
+      closeUploadForm,
+      openAddSubjectForm,
+      closeAddSubjectForm,
+      getSubjectDetails,
+      addSubject,
+      editSubject,
+      deleteSubject,
+      updateProgress,
+      askQuestion,
+      getFileProgress,
+      deletePdf,
+      getAllUsers,
+      deleteUser,
+      getUserStats,
+    ],
+  );
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };

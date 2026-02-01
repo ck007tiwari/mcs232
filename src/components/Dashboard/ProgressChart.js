@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -8,9 +8,9 @@ import {
   Title,
   Tooltip,
   Legend,
-  Filler
-} from 'chart.js';
-import { Line } from 'react-chartjs-2';
+  Filler,
+} from "chart.js";
+import { Line } from "react-chartjs-2";
 
 ChartJS.register(
   CategoryScale,
@@ -20,10 +20,10 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
-  Filler
+  Filler,
 );
 
-const ProgressChart = ({ data, title }) => {
+const ProgressChart = ({ data, title, yAxisMax }) => {
   const options = {
     responsive: true,
     maintainAspectRatio: false,
@@ -32,10 +32,10 @@ const ProgressChart = ({ data, title }) => {
         display: false,
       },
       tooltip: {
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-        titleColor: 'white',
-        bodyColor: 'white',
-        borderColor: 'rgba(59, 130, 246, 1)',
+        backgroundColor: "rgba(0, 0, 0, 0.8)",
+        titleColor: "white",
+        bodyColor: "white",
+        borderColor: "rgba(59, 130, 246, 1)",
         borderWidth: 1,
       },
     },
@@ -50,8 +50,9 @@ const ProgressChart = ({ data, title }) => {
       },
       y: {
         beginAtZero: true,
+        suggestedMax: yAxisMax,
         grid: {
-          color: 'rgba(0, 0, 0, 0.05)',
+          color: "rgba(0, 0, 0, 0.05)",
         },
         border: {
           display: false,

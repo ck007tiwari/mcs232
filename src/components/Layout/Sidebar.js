@@ -1,5 +1,5 @@
 import React from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import {
   Home,
   BookOpen,
@@ -13,9 +13,16 @@ import {
 import { useApp } from "../../context/AppContext";
 
 const Sidebar = () => {
-  const { sidebarOpen, subjects, openUploadForm, openAddSubjectForm, logout } =
-    useApp();
+  const {
+    sidebarOpen,
+    subjects,
+    openUploadForm,
+    openAddSubjectForm,
+    logout,
+    isAdmin,
+  } = useApp();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const navItems = [
     { to: "/dashboard", icon: Home, label: "Dashboard" },
@@ -29,19 +36,39 @@ const Sidebar = () => {
     navigate("/login");
   };
 
+
+  const isSubjectActive = (subjectId, isActive) => {
+    if (isActive) return true;
+    
+    if (location.pathname.startsWith('/pdf/')) {
+      const pdfState = location.state?.pdf;
+      const pdfSubjectId = pdfState?.subject || pdfState?.subjectId;
+      return String(pdfSubjectId) === String(subjectId);
+    }
+    
+    return false;
+  };
+
   return (
     <div
-      className={`fixed left-0 top-0 h-full bg-white shadow-lg border-r border-gray-200 transition-all duration-300 z-40 flex flex-col ${
+      className={`fixed left-0 top-0 h-full bg-white dark:bg-dark-secondary shadow-lg border-r border-gray-200 dark:border-gray-700 transition-all duration-300 z-40 flex flex-col ${
         sidebarOpen ? "w-64" : "w-16"
       }`}
     >
       <div className="p-4">
         <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-primary-500 rounded-lg flex items-center justify-center">
-            <GraduationCap size={20} className="text-white" />
+          <div className="w-10 h-10 bg-primary-500 rounded-lg flex items-center justify-center">
+            <GraduationCap size={24} className="text-white" />
           </div>
           {sidebarOpen && (
-            <h1 className="text-xl font-bold text-gray-900">ELearn</h1>
+            <div>
+              <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">ELearn</h1>
+              {isAdmin && (
+                <span className="text-xs text-primary-600 dark:text-primary-400 font-medium">
+                  Admin Panel
+                </span>
+              )}
+            </div>
           )}
         </div>
       </div>
@@ -55,12 +82,12 @@ const Sidebar = () => {
               className={({ isActive }) =>
                 `flex items-center space-x-3 py-3 rounded-lg mb-2 transition-colors ${
                   isActive
-                    ? "bg-primary-50 text-primary-700 border-r-2 border-primary-500"
-                    : "text-gray-600 hover:bg-gray-100"
+                    ? "bg-primary-50 dark:bg-primary-700 text-primary-700 dark:text-white border-r-2 border-primary-500"
+                    : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                 } ${sidebarOpen ? "px-3" : "justify-center"}`
               }
             >
-              <item.icon size={20} />
+              <item.icon size={24} />
               {sidebarOpen && <span className="font-medium">{item.label}</span>}
             </NavLink>
           ))}
@@ -69,12 +96,12 @@ const Sidebar = () => {
         {sidebarOpen && (
           <div className="px-4 mt-8">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+              <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Subjects
               </h3>
               <button
                 onClick={openAddSubjectForm}
-                className="text-gray-500 hover:text-primary-500"
+                className="text-gray-500 dark:text-gray-400 hover:text-primary-500 dark:hover:text-primary-400"
               >
                 <PlusCircle size={16} />
               </button>
@@ -85,9 +112,9 @@ const Sidebar = () => {
                 to={`/subject/${subject.id}`}
                 className={({ isActive }) =>
                   `flex items-center space-x-3 px-3 py-2 rounded-lg mb-1 transition-colors ${
-                    isActive
-                      ? "bg-gray-100 text-gray-900"
-                      : "text-gray-600 hover:bg-gray-50"
+                    isSubjectActive(subject.id, isActive)
+                      ? "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                      : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                   }`
                 }
               >
@@ -116,7 +143,7 @@ const Sidebar = () => {
         )}
         <button
           onClick={handleLogout}
-          className={`w-full flex items-center space-x-3 py-3 rounded-lg text-red-500 hover:bg-red-50 transition-colors ${
+          className={`w-full flex items-center space-x-3 py-3 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-900 dark:hover:bg-opacity-20 transition-colors ${
             sidebarOpen ? "px-3" : "justify-center"
           }`}
         >

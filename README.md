@@ -9,6 +9,8 @@ A personalized e-learning dashboard with PDF progress tracking and AI-powered Q&
 - **Progress Tracking**: Monitor reading progress with visual analytics
 - **AI-Powered Q&A**: Ask questions about PDF content and get intelligent answers
 - **Interactive Dashboard**: Charts and statistics for learning insights
+- **Role-based Access Control**: Admin and student user roles with different permissions
+- **Admin Panel**: PDF management and system administration for admin users
 - **Responsive Design**: Works on desktop and mobile devices
 
 ## Tech Stack
@@ -50,8 +52,8 @@ npm start
 ### Demo Credentials
 
 For testing purposes, use these credentials:
-- **Email**: john.doe@example.com
-- **Password**: password123
+- **Student Account**: ck@tiwari.com / ck12345
+- **Admin Account**: ck@tiwari.com / ck123456
 
 ## Project Structure
 
