@@ -55,8 +55,8 @@ const Sidebar = () => {
         sidebarOpen ? "w-64" : "w-16"
       }`}
     >
-      <div className="p-4">
-        <div className="flex items-center space-x-3">
+      <div className={sidebarOpen ? "p-4" : "py-4 px-2"}>
+        <div className={`flex items-center space-x-3 ${!sidebarOpen && "justify-center"}`}>
           <div className="w-10 h-10 bg-primary-500 rounded-lg flex items-center justify-center">
             <GraduationCap size={24} className="text-white" />
           </div>
@@ -74,7 +74,7 @@ const Sidebar = () => {
       </div>
 
       <nav className="mt-8 flex-1">
-        <div className="px-4">
+        <div className={sidebarOpen ? "px-4" : "px-2"}>
           {navItems.map((item) => (
             <NavLink
               key={item.to}
@@ -144,7 +144,7 @@ const Sidebar = () => {
         <button
           onClick={handleLogout}
           className={`w-full flex items-center space-x-3 py-3 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-900 dark:hover:bg-opacity-20 transition-colors ${
-            sidebarOpen ? "px-3" : "justify-center"
+            sidebarOpen ? "px-3" : "px-1 justify-center"
           }`}
         >
           <LogOut size={20} />
