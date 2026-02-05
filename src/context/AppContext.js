@@ -99,7 +99,7 @@ export const AppProvider = ({ children }) => {
   }, [isAuthenticated]);
 
   const getAllUsers = useCallback(async () => {
-    if (user?.role === "admin") {
+    if (user?.role === "admin" || user?.role === "super_admin") {
       try {
         const { data } = await api.get("/users/");
         setAllUsers(Array.isArray(data) ? data : []);
@@ -116,7 +116,7 @@ export const AppProvider = ({ children }) => {
   }, [fetchSubjects, isAuthenticated]);
 
   useEffect(() => {
-    if (isAuthenticated && user?.role === "admin") {
+    if (isAuthenticated && (user?.role === "admin" || user?.role === "super_admin")) {
       getAllUsers();
     }
   }, [isAuthenticated, user, getAllUsers]);
@@ -447,7 +447,24 @@ export const AppProvider = ({ children }) => {
     [user],
   );
 
-  const isAdmin = useMemo(() => user?.role === "admin", [user]);
+  const updateUserRole = useCallback(
+    async (userId, newRole) => {
+      try {
+        await api.put(`/users/${userId}/role/`, { role: newRole });
+        showToast("User role updated successfully", "success");
+        getAllUsers();
+        return { success: true };
+      } catch (error) {
+        console.error("Error updating user role:", error);
+        showToast(error.response?.data?.error || "Failed to update user role", "error");
+        return { success: false };
+      }
+    },
+    [getAllUsers, showToast]
+  );
+
+  const isAdmin = useMemo(() => user?.role === "admin" || user?.role === "super_admin", [user]);
+  const isSuperAdmin = useMemo(() => user?.role === "super_admin", [user]);
 
   const value = useMemo(
     () => ({
@@ -456,6 +473,7 @@ export const AppProvider = ({ children }) => {
       isAuthenticated,
       subjects,
       isAdmin,
+      isSuperAdmin,
       questions,
       currentPdf,
       sidebarOpen,
@@ -480,6 +498,7 @@ export const AppProvider = ({ children }) => {
       logout,
       updateProfile,
       changePassword,
+      updateUserRole,
 
       // Functions
       showToast,
@@ -508,6 +527,7 @@ export const AppProvider = ({ children }) => {
       isAuthenticated,
       subjects,
       isAdmin,
+      isSuperAdmin,
       questions,
       currentPdf,
       sidebarOpen,
@@ -526,6 +546,7 @@ export const AppProvider = ({ children }) => {
       logout,
       updateProfile,
       changePassword,
+      updateUserRole,
       showToast,
       hideToast,
       openUploadForm,

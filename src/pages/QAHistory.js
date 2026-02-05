@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useApp } from "../context/AppContext";
 import AdminQAStats from "../components/QA/AdminQAStats";
 import UserQAHistory from "../components/QA/UserQAHistory";

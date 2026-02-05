@@ -19,6 +19,7 @@ import Profile from "./pages/Profile";
 import Subjects from "./pages/Subjects";
 import Dashboard from "./pages/Dashboard";
 import AdminDashboard from "./pages/AdminDashboard";
+import UserManagement from "./pages/UserManagement";
 import QAHistory from "./pages/QAHistory";
 import ThemeContext from "./context/ThemeContext";
 
@@ -99,6 +100,14 @@ const AppRoutes = () => {
               element={
                 <AdminRoute>
                   <AdminDashboard />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="users"
+              element={
+                <AdminRoute>
+                  <UserManagement />
                 </AdminRoute>
               }
             />

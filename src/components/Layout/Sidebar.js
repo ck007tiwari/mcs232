@@ -5,6 +5,7 @@ import {
   BookOpen,
   MessageCircle,
   User,
+  Users,
   Upload,
   GraduationCap,
   PlusCircle,
@@ -26,8 +27,13 @@ const Sidebar = () => {
 
   const navItems = [
     { to: "/dashboard", icon: Home, label: "Dashboard" },
-    { to: "/subjects", icon: BookOpen, label: "Subjects" },
-    { to: "/qa", icon: MessageCircle, label: "Q&A" },
+    ...(isAdmin 
+      ? [{ to: "/users", icon: Users, label: "Users" }] 
+      : [{ to: "/qa", icon: MessageCircle, label: "Q&A" },
+        { to: "/subjects", icon: BookOpen, label: "Subjects" },
+        
+      ]
+    ),
     { to: "/profile", icon: User, label: "Profile" },
   ];
 
