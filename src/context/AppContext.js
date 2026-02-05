@@ -428,7 +428,7 @@ export const AppProvider = ({ children }) => {
       };
 
       try {
-        const res = await axios.post("http://localhost:5000/api/qa", {
+        const res = await api.post("/users/qa/", {
           pdfId,
           questionText,
           pageContext,

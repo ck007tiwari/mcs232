@@ -5,21 +5,33 @@ import {
   BookOpen,
   Filter,
   Calendar,
+  Clock,
+  ArrowRight,
+  ChevronDown,
 } from "lucide-react";
 import { useApp } from "../../context/AppContext";
 
 const UserQAHistory = ({ data }) => {
-  const { pdfs, subjects } = useApp();
+  const { subjects } = useApp();
+  
+  // Flatten all PDFs from subjects for easy lookup
+  const allPdfs = React.useMemo(() => {
+    return (subjects || []).flatMap(subject => 
+      (subject.files || []).map(file => ({...file, subjectId: subject.id || subject.subjectId}))
+    );
+  }, [subjects]);
+
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedSubject, setSelectedSubject] = useState("all");
   const [sortBy, setSortBy] = useState("recent");
+  const [openQuestionId, setOpenQuestionId] = useState(null);
 
   // Filter and sort questions
   const questions = data?.questions || [];
   const filteredQuestions = questions
     .filter((q) => {
-      const pdf = pdfs.find((p) => p.pdfId === q.pdfId);
-      const subject = subjects.find((s) => s.subjectId === pdf?.subjectId);
+      const pdf = allPdfs.find((p) => String(p.id) === String(q.pdfId)); // Match backend ID
+      const subject = subjects?.find((s) => (s.id || s.subjectId) === pdf?.subjectId);
 
       const matchesSearch =
         q.question_text.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -43,8 +55,8 @@ const UserQAHistory = ({ data }) => {
     });
 
   const getPdfInfo = (pdfId) => {
-    const pdf = pdfs.find((p) => p.pdfId === pdfId);
-    const subject = subjects.find((s) => s.subjectId === pdf?.subjectId);
+    const pdf = allPdfs.find((p) => String(p.id) === String(pdfId));
+    const subject = subjects?.find((s) => (s.id || s.subjectId) === pdf?.subjectId);
     return { pdf, subject };
   };
 
@@ -58,76 +70,49 @@ const UserQAHistory = ({ data }) => {
     });
   };
 
+  const toggleQuestion = (id) => {
+    setOpenQuestionId(openQuestionId === id ? null : id);
+  };
+
   return (
-    <div className="space-y-6">
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white dark:bg-dark-secondary rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
-              <MessageCircle size={20} className="text-blue-600 dark:text-blue-300" />
+    <div className="space-y-8 animate-fade-in-up">
+      {/* Stats Section - Compact & Modern */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          { label: "Total Questions", value: data?.total_questions || 0, icon: MessageCircle, color: "text-blue-500", bg: "bg-blue-50 dark:bg-blue-900/20" },
+          { label: "PDFs Discussed", value: data?.pdfs_discussed || 0, icon: BookOpen, color: "text-green-500", bg: "bg-green-50 dark:bg-green-900/20" },
+          { label: "Avg Confidence", value: `${Math.round((data?.avg_confidence || 0) * 100)}%`, icon: Filter, color: "text-purple-500", bg: "bg-purple-50 dark:bg-purple-900/20" },
+          { label: "Active Since", value: "Feb 2026", icon: Calendar, color: "text-orange-500", bg: "bg-orange-50 dark:bg-orange-900/20" }, // Placeholder stat
+        ].map((stat, idx) => (
+          <div key={idx} className="bg-white dark:bg-dark-secondary rounded-2xl p-4 border border-gray-100 dark:border-gray-700 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+            <div className={`w-10 h-10 rounded-xl ${stat.bg} flex items-center justify-center mb-3`}>
+              <stat.icon size={20} className={stat.color} />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                {data?.total_questions || 0}
-              </p>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Total Questions</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stat.value}</p>
+              <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mt-1">{stat.label}</p>
             </div>
           </div>
-        </div>
-
-        <div className="bg-white dark:bg-dark-secondary rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
-              <BookOpen size={20} className="text-green-600 dark:text-green-300" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                {data?.pdfs_discussed || 0}
-              </p>
-              <p className="text-sm text-gray-600 dark:text-gray-400">PDFs Discussed</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-dark-secondary rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
-              <Filter size={20} className="text-purple-600 dark:text-purple-300" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                {Math.round((data?.avg_confidence || 0) * 100)}%
-              </p>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Avg Confidence</p>
-            </div>
-          </div>
-        </div>
+        ))}
       </div>
 
-      {/* Filters */}
-      <div className="bg-white dark:bg-dark-secondary rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Search */}
-          <div className="relative">
-            <Search
-              size={20}
-              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-            />
-            <input
-              type="text"
-              placeholder="Search questions and answers..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-dark-primary dark:text-gray-200"
-            />
-          </div>
-
-          {/* Subject Filter */}
+      {/* Control Panel: Filters & Search */}
+      <div className="flex flex-col lg:flex-row gap-4 bg-white dark:bg-dark-secondary p-2 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+        <div className="relative flex-grow">
+          <Search size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search your Q&A history..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-dark-primary border-transparent focus:bg-white dark:focus:bg-dark-secondary focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900 rounded-xl text-sm transition-all outline-none dark:text-gray-200"
+          />
+        </div>
+        <div className="flex gap-2 overflow-x-auto pb-2 lg:pb-0">
           <select
             value={selectedSubject}
             onChange={(e) => setSelectedSubject(e.target.value)}
-            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-dark-primary dark:text-gray-200"
+            className="px-4 py-2.5 bg-gray-50 dark:bg-dark-primary border-none rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors outline-none min-w-[140px]"
           >
             <option value="all">All Subjects</option>
             {subjects.map((subject) => (
@@ -137,128 +122,133 @@ const UserQAHistory = ({ data }) => {
             ))}
           </select>
 
-          {/* Sort By */}
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
-            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-dark-primary dark:text-gray-200"
+            className="px-4 py-2.5 bg-gray-50 dark:bg-dark-primary border-none rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors outline-none min-w-[140px]"
           >
             <option value="recent">Most Recent</option>
             <option value="oldest">Oldest First</option>
-            <option value="confidence">Highest Confidence</option>
+            <option value="confidence">High Confidence</option>
           </select>
         </div>
       </div>
 
-      {/* Questions List */}
-      <div className="bg-white dark:bg-dark-secondary rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-            Questions & Answers ({filteredQuestions.length})
-          </h2>
-        </div>
-        <div className="p-6">
-          {filteredQuestions.length === 0 ? (
-            <div className="text-center py-12">
-              <MessageCircle size={48} className="text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-                No questions found
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                {searchTerm || selectedSubject !== "all"
-                  ? "Try adjusting your search or filters"
-                  : "Start asking questions about your PDFs to see them here"}
-              </p>
+      {/* Timeline / Stream View */}
+      <div className="space-y-6">
+        {filteredQuestions.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 bg-white dark:bg-dark-secondary rounded-3xl border-2 border-dashed border-gray-100 dark:border-gray-700">
+            <div className="w-16 h-16 bg-gray-50 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4">
+              <MessageCircle size={32} className="text-gray-300 dark:text-gray-600" />
             </div>
-          ) : (
-            <div className="space-y-6">
-              {filteredQuestions.map((question) => {
-                const { pdf, subject } = getPdfInfo(question.pdf_id);
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">No conversations found</h3>
+            <p className="text-gray-500 dark:text-gray-400 text-center max-w-sm">
+              Try adjusting your filters or start exploring your PDF documents to ask new questions.
+            </p>
+          </div>
+        ) : (
+          filteredQuestions.map((question, index) => {
+             const { pdf, subject } = getPdfInfo(question.pdf_id);
+             const isOpen = openQuestionId === question.question_id;
 
-                return (
-                  <div
-                    key={question.question_id}
-                    className="border border-gray-200 dark:border-gray-700 rounded-lg p-4"
-                  >
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center space-x-3">
-                        <div
-                          className="w-3 h-3 rounded-full"
-                          style={{
-                            backgroundColor: subject?.color || "#gray",
-                          }}
-                        ></div>
-                        <div>
-                          <h3 className="font-medium text-gray-900 dark:text-gray-100">
-                            {pdf?.filename}
-                          </h3>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
-                            {subject?.name} • Page {question.page_context}
-                          </p>
+             return (
+               <div 
+                 key={question.question_id} 
+                 className={`group relative bg-white dark:bg-dark-secondary rounded-2xl border transition-all duration-300 ${
+                   isOpen 
+                   ? "border-primary-200 dark:border-primary-800 shadow-md ring-1 ring-primary-50 dark:ring-primary-900" 
+                   : "border-gray-100 dark:border-gray-700 hover:border-primary-100 dark:hover:border-primary-800 hover:shadow-sm"
+                 }`}
+               >
+                 {/* Header Row */}
+                 <div 
+                   className="p-5 cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                   onClick={() => toggleQuestion(question.question_id)}
+                 >
+                   <div className="flex items-start space-x-4">
+                     <div className="mt-1 flex-shrink-0">
+                       <div 
+                         className="w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-sm"
+                         style={{ backgroundColor: subject?.color || "#6B7280" }}
+                       >
+                         <BookOpen size={18} />
+                       </div>
+                     </div>
+                     <div>
+                       <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 line-clamp-1 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                         {question.question_text}
+                       </h3>
+                       <div className="flex flex-wrap items-center gap-2 mt-1.5">
+                         <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
+                           {pdf?.filename || "Unknown PDF"}
+                         </span>
+                         <span className="text-xs text-gray-400 dark:text-gray-500 flex items-center">
+                           <Clock size={12} className="mr-1" />
+                           {formatDate(question.timestamp)}
+                         </span>
+                       </div>
+                     </div>
+                   </div>
+                   
+                   <div className="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-4 pl-14 sm:pl-0">
+                      <div className="text-right hidden sm:block">
+                        <span className={`text-xs font-semibold ${
+                          question.confidence_score > 0.8 ? "text-green-500" : "text-amber-500"
+                        }`}>
+                          {Math.round(question.confidence_score * 100)}% Match
+                        </span>
+                      </div>
+                      <div className={`p-2 rounded-full transition-transform duration-300 ${isOpen ? "rotate-180 bg-gray-100 dark:bg-gray-700" : ""}`}>
+                        <ChevronDown size={20} className="text-gray-400" />
+                      </div>
+                   </div>
+                 </div>
+
+                 {/* Expanded Content */}
+                 <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? "max-h-[800px] opacity-100" : "max-h-0 opacity-0"}`}>
+                   <div className="px-5 pb-6 pt-0 space-y-5">
+                      <div className="h-px bg-gray-100 dark:bg-gray-700 w-full mb-4"></div>
+                      
+                      {/* Q&A Thread */}
+                      <div className="space-y-4">
+                        <div className="flex gap-4">
+                          <div className="flex-shrink-0 mt-1">
+                             <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                                <span className="text-xs font-bold text-gray-600 dark:text-gray-300">You</span>
+                             </div>
+                          </div>
+                          <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-4 text-gray-700 dark:text-gray-300 text-sm leading-relaxed w-full">
+                            {question.question_text}
+                          </div>
                         </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          {formatDate(question.timestamp)}
-                        </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-500">
-                          Confidence:{" "}
-                          {Math.round(question.confidence_score * 100)}%
-                        </p>
-                      </div>
-                    </div>
 
-                    <div className="space-y-3">
-                      <div className="bg-blue-50 dark:bg-blue-900 p-3 rounded-lg">
-                        <div className="flex items-start space-x-2">
-                          <MessageCircle
-                            size={16}
-                            className="text-blue-600 dark:text-blue-300 mt-0.5"
-                          />
-                          <div>
-                            <p className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-1">
-                              Question:
-                            </p>
-                            <p className="text-sm text-blue-700 dark:text-blue-300">
-                              {question.question_text}
-                            </p>
+                        <div className="flex gap-4">
+                          <div className="flex-shrink-0 mt-1">
+                             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-500 to-indigo-600 flex items-center justify-center shadow-md">
+                                <MessageCircle size={14} className="text-white" />
+                             </div>
+                          </div>
+                          <div className="bg-gradient-to-br from-primary-50 to-indigo-50 dark:from-primary-900/20 dark:to-indigo-900/20 border border-primary-100 dark:border-primary-800/30 rounded-2xl p-4 text-gray-800 dark:text-gray-200 text-sm leading-relaxed w-full shadow-sm">
+                            <p className="whitespace-pre-wrap">{question.answer_text}</p>
+                            
+                            <div className="mt-4 flex items-center justify-end gap-3 border-t border-primary-100 dark:border-primary-800/30 pt-3">
+                               <button className="text-xs font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 flex items-center transition-colors">
+                                 Copy Answer
+                               </button>
+                               <button className="text-xs font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 flex items-center transition-colors">
+                                 Ask Follow-up <ArrowRight size={12} className="ml-1" />
+                               </button>
+                            </div>
                           </div>
                         </div>
                       </div>
 
-                      <div className="bg-green-50 dark:bg-green-900 p-3 rounded-lg">
-                        <div className="flex items-start space-x-2">
-                          <div className="w-4 h-4 bg-green-600 rounded-full flex items-center justify-center mt-0.5">
-                            <span className="text-white text-xs font-bold">
-                              AI
-                            </span>
-                          </div>
-                          <div>
-                            <p className="text-sm font-medium text-green-800 dark:text-green-200 mb-1">
-                              Answer:
-                            </p>
-                            <p className="text-sm text-green-700 dark:text-green-300">
-                              {question.answer_text}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
-                      <button className="text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 font-medium">
-                        Ask Follow-up
-                      </button>
-                      <button className="text-sm text-gray-600 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
-                        Copy Answer
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
+                   </div>
+                 </div>
+               </div>
+             );
+          })
+        )}
       </div>
     </div>
   );

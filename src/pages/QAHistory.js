@@ -18,11 +18,24 @@ const QAHistory = () => {
         setLoading(true);
         const endpoint = isAdmin
           ? selectedUserId
-            ? `/api/qa-history/?user_id=${selectedUserId}`
-            : "/api/qa-history/"
-          : "/api/qa-history/";
+            ? `/users/qa-history/?user_id=${selectedUserId}`
+            : "/users/qa-history/"
+          : "/users/qa-history/";
         const { data } = await getQAHistory(endpoint);
-        setData(data ?? []);
+        
+        // Transform data to match UserQAHistory expectation
+        const formattedData = (data ?? []).map(item => ({
+          question_id: item.id,
+          question_text: item.question,
+          answer_text: item.answer,
+          timestamp: item.created_at,
+          pdfId: item.subject_file,
+          pdf_id: item.subject_file, // Component uses both in different places
+          confidence_score: 0.95, // Default
+          page_context: 1 // Default
+        }));
+
+        setData({ questions: formattedData, total_questions: formattedData.length, pdfs_discussed: new Set(formattedData.map(d => d.pdfId)).size, avg_confidence: 0.95 });
         setError(null);
       } catch (err) {
         setError("Failed to fetch Q&A history.");
