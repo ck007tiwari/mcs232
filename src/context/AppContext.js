@@ -430,15 +430,20 @@ export const AppProvider = ({ children }) => {
       try {
         const res = await api.post("/users/qa/", {
           pdfId,
+          pdfID: pdfId,
           questionText,
+          question: questionText,
           pageContext,
+          pageNumber: pageContext,
         });
-        newQuestion.answerText = res.data.answerText;
-        newQuestion.confidenceScore = res.data.confidenceScore;
+        newQuestion.answerText = res.data.answerText || res.data.answer;
+        newQuestion.confidenceScore = res.data.confidenceScore ?? res.data.confidence ?? 0.95;
       } catch (error) {
         console.error("Error asking question:", error);
-        newQuestion.answerText =
-          "Sorry, I encountered an error trying to answer your question.";
+        const serverError = error.response?.data?.error || error.response?.data?.answerText;
+        newQuestion.answerText = serverError
+          ? `Error: ${serverError}`
+          : "Sorry, I encountered an error trying to answer your question.";
       }
 
       setQuestions((prev) => [newQuestion, ...prev]);
