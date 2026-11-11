@@ -15,6 +15,7 @@ import { Link, useNavigate } from "react-router-dom";
 
 const UserManagement = () => {
   const {
+    user: currentUser,
     allUsers,
     deleteUser,
     isSuperAdmin,
@@ -28,6 +29,28 @@ const UserManagement = () => {
   const [loadingExpanded, setLoadingExpanded] = useState({});
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
+
+  const canDeleteUser = (targetUser) => {
+    // Super admin account cannot be deleted
+    if (targetUser.role === "super_admin") {
+      return false;
+    }
+
+    // Super admin can delete other admins and students (cannot delete self)
+    if (isSuperAdmin) {
+      return targetUser.id !== currentUser?.id;
+    }
+
+    // Regular admin can delete themselves or students, but CANNOT delete other admins
+    if (currentUser?.role === "admin") {
+      if (targetUser.role === "admin") {
+        return targetUser.id === currentUser?.id;
+      }
+      return targetUser.role === "student";
+    }
+
+    return false;
+  };
 
   const filteredUsers = (allUsers || []).filter(
     (user) =>
@@ -50,8 +73,8 @@ const UserManagement = () => {
     }
   };
 
-  const handleDeleteUser = (userId, name) => {
-    setUserToDelete({ id: userId, name });
+  const handleDeleteUser = (userId, name, isSelf = false) => {
+    setUserToDelete({ id: userId, name, isSelf });
     setShowDeleteConfirm(true);
   };
 
@@ -194,16 +217,37 @@ const UserManagement = () => {
                             {new Date(user.created_at).toLocaleDateString()}
                           </td>
                           <td className="px-4 py-3 text-right">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDeleteUser(user.id, user.username);
-                              }}
-                              className="text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors p-1"
-                              title="Delete User"
-                            >
-                              <Trash2 size={16} />
-                            </button>
+                            {canDeleteUser(user) ? (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteUser(
+                                    user.id,
+                                    user.username,
+                                    user.id === currentUser?.id
+                                  );
+                                }}
+                                className="text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors p-1"
+                                title={
+                                  user.id === currentUser?.id
+                                    ? "Delete your own account"
+                                    : "Delete User"
+                                }
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            ) : (
+                              <span
+                                className="text-gray-300 dark:text-gray-600 p-1 inline-block cursor-not-allowed"
+                                title={
+                                  user.role === "super_admin"
+                                    ? "Super Admin account cannot be deleted"
+                                    : "Admins cannot delete other admins"
+                                }
+                              >
+                                <Trash2 size={16} className="opacity-30" />
+                              </span>
+                            )}
                           </td>
                         </tr>
                         {expandedUsers[user.id] && (
@@ -280,9 +324,16 @@ const UserManagement = () => {
           
       {showDeleteConfirm && (
         <ConfirmationDialog
-          message={`Are you sure you want to delete user "${userToDelete?.name}"? This action cannot be undone.`}
+          message={
+            userToDelete?.isSelf
+              ? "Warning: You are about to permanently delete your own admin account. You will be logged out immediately."
+              : `Are you sure you want to delete user "${userToDelete?.name}"? This action cannot be undone.`
+          }
           onConfirm={confirmDeleteUser}
-          onCancel={() => setShowDeleteConfirm(false)}
+          onCancel={() => {
+            setShowDeleteConfirm(false);
+            setUserToDelete(null);
+          }}
         />
       )}
     </div>

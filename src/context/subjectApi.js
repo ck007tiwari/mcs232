@@ -10,8 +10,9 @@ export const getSubjects = async () => {
   return { data: response.data, status: response.status };
 };
 
-export const deleteSubjectApi = async (subjectId) => {
-  const response = await api.delete(`/users/subjects/${subjectId}/`);
+export const deleteSubjectApi = async (subjectId, deleteAll = false) => {
+  const query = deleteAll ? "?delete_all=true" : "";
+  const response = await api.delete(`/users/subjects/${subjectId}/${query}`);
   return { data: response.data, status: response.status };
 };
 
@@ -36,6 +37,15 @@ export const uploadPdfToSubject = async (pdfData) => {
 
 export const deletePdfFromSubject = async (pdfId) => {
   const response = await api.delete(`/users/files/${pdfId}/`);
+  return { data: response.data, status: response.status };
+};
+
+export const updateSubjectFile = async (pdfId, fileData) => {
+  const isFormData = fileData instanceof FormData;
+  const config = isFormData
+    ? { headers: { "Content-Type": "multipart/form-data" } }
+    : {};
+  const response = await api.put(`/users/files/${pdfId}/`, fileData, config);
   return { data: response.data, status: response.status };
 };
 

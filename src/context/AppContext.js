@@ -19,6 +19,7 @@ import {
   updatePdfProgress,
   getPdfProgress,
   deletePdfFromSubject,
+  updateSubjectFile,
 } from "./subjectApi";
 
 const AppContext = createContext();
@@ -242,17 +243,25 @@ export const AppProvider = ({ children }) => {
     async (subject) => {
       try {
         const { data, status } = await createSubject(subject);
-        if (status !== 201) {
-          return showToast("Failed to add subject", "error");
+        if (status !== 201 && status !== 200) {
+          showToast("Failed to add subject", "error");
+          return { success: false, message: "Failed to add subject" };
         }
-        fetchSubjects();
-        showToast("Subject added successfully", "success");
-        return { success: true };
+        await fetchSubjects();
+        showToast(data?.message || "Subject added successfully", "success");
+        return { success: true, data };
       } catch (error) {
         console.error("Error adding subject:", error);
+        const errMsg =
+          error.response?.data?.name?.[0] ||
+          error.response?.data?.color?.[0] ||
+          error.response?.data?.message ||
+          error.response?.data?.detail ||
+          "Failed to add subject";
+        showToast(errMsg, "error");
         return {
           success: false,
-          message: error.response?.data?.message || "Failed to add subject",
+          message: errMsg,
         };
       }
     },
@@ -262,36 +271,50 @@ export const AppProvider = ({ children }) => {
   const editSubject = useCallback(
     async (subjectId, updatedSubject) => {
       try {
-        const { status } = await updateSubject(subjectId, updatedSubject);
-        if (status !== 200) {
-          return showToast("Failed to update subject", "error");
+        const { data, status } = await updateSubject(subjectId, updatedSubject);
+        if (status !== 200 && status !== 201) {
+          showToast("Failed to update subject", "error");
+          return { success: false, message: "Failed to update subject" };
         }
-        fetchSubjects();
-        return { success: true };
+        await fetchSubjects();
+        showToast("Subject updated successfully", "success");
+        return { success: true, data };
       } catch (error) {
         console.error("Error updating subject:", error);
+        const errMsg =
+          error.response?.data?.name?.[0] ||
+          error.response?.data?.color?.[0] ||
+          error.response?.data?.message ||
+          error.response?.data?.detail ||
+          "Failed to update subject";
+        showToast(errMsg, "error");
         return {
           success: false,
-          message: error.response?.data?.message || "Failed to update subject",
+          message: errMsg,
         };
       }
     },
-    [fetchSubjects],
+    [fetchSubjects, showToast],
   );
 
   const deleteSubject = useCallback(
-    async (subjectId) => {
+    async (subjectId, options = {}) => {
       try {
-        const { status } = await deleteSubjectApi(subjectId);
-        if (status !== 204) {
-          return showToast("Failed to delete subject", "error");
+        const { status } = await deleteSubjectApi(subjectId, options?.deleteAll);
+        if (status !== 204 && status !== 200) {
+          showToast("Failed to delete subject", "error");
+          return { success: false };
         }
-        fetchSubjects();
+        showToast("Subject deleted successfully", "success");
+        await fetchSubjects();
+        return { success: true };
       } catch (error) {
         console.error("Error deleting subject:", error);
+        showToast(error.response?.data?.detail || "Failed to delete subject", "error");
+        return { success: false };
       }
     },
-    [fetchSubjects],
+    [fetchSubjects, showToast],
   );
 
   const getSubjectDetails = useCallback(async (subjectId) => {
@@ -352,20 +375,54 @@ export const AppProvider = ({ children }) => {
     [fetchSubjects, showToast],
   );
 
+  const editPdf = useCallback(
+    async (pdfId, pdfData) => {
+      try {
+        const { status, data } = await updateSubjectFile(pdfId, pdfData);
+        if (status !== 200 && status !== 201) {
+          showToast("Failed to update PDF", "error");
+          return { success: false, message: "Failed to update PDF" };
+        }
+        showToast("PDF updated successfully", "success");
+        fetchSubjects();
+        setSubjectUpdateTrigger((prev) => prev + 1);
+        return { success: true, data };
+      } catch (error) {
+        console.error("Error updating PDF:", error);
+        const errMsg =
+          error.response?.data?.error ||
+          error.response?.data?.title?.[0] ||
+          error.response?.data?.detail ||
+          "Failed to update PDF";
+        showToast(errMsg, "error");
+        return { success: false, message: errMsg };
+      }
+    },
+    [fetchSubjects, showToast],
+  );
+
   const deleteUser = useCallback(
     async (userId) => {
       try {
         await api.delete(`/users/${userId}/`);
         showToast("User deleted successfully", "success");
-        getAllUsers();
+        if (userId === user?.id) {
+          logout();
+        } else {
+          getAllUsers();
+        }
         return { success: true };
       } catch (error) {
         console.error("Error deleting user:", error);
-        showToast("Failed to delete user", "error");
-        return { success: false };
+        const errMsg =
+          error.response?.data?.error ||
+          error.response?.data?.detail ||
+          "Failed to delete user";
+        showToast(errMsg, "error");
+        return { success: false, message: errMsg };
       }
     },
-    [getAllUsers, showToast],
+    [getAllUsers, showToast, user, logout],
   );
 
   const getUserStats = useCallback(async (userId) => {
@@ -519,6 +576,7 @@ export const AppProvider = ({ children }) => {
       editSubject,
       deleteSubject,
       deletePdf,
+      editPdf,
       updateProgress,
       getAllUsers,
       deleteUser,
@@ -566,6 +624,7 @@ export const AppProvider = ({ children }) => {
       askQuestion,
       getFileProgress,
       deletePdf,
+      editPdf,
       getAllUsers,
       deleteUser,
       getUserStats,

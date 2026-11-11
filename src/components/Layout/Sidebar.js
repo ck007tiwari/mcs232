@@ -27,12 +27,10 @@ const Sidebar = () => {
 
   const navItems = [
     { to: "/dashboard", icon: Home, label: "Dashboard" },
+    { to: "/subjects", icon: BookOpen, label: "Subjects" },
     ...(isAdmin 
       ? [{ to: "/users", icon: Users, label: "Users" }] 
-      : [{ to: "/qa", icon: MessageCircle, label: "Q&A" },
-        { to: "/subjects", icon: BookOpen, label: "Subjects" },
-        
-      ]
+      : [{ to: "/qa", icon: MessageCircle, label: "Q&A" }]
     ),
     { to: "/profile", icon: User, label: "Profile" },
   ];
@@ -125,10 +123,15 @@ const Sidebar = () => {
                 }
               >
                 <div
-                  className="w-3 h-3 rounded-full"
+                  className="w-3 h-3 rounded-full flex-shrink-0"
                   style={{ backgroundColor: subject.color }}
                 ></div>
-                <span className="text-sm">{subject.name}</span>
+                <span className="text-sm truncate flex-1">{subject.name}</span>
+                {isAdmin && subject.user_email && (
+                  <span className="text-[10px] text-gray-400 dark:text-gray-500 font-normal truncate max-w-[70px]">
+                    {subject.user_name || subject.user_email.split("@")[0]}
+                  </span>
+                )}
               </NavLink>
             ))}
           </div>
