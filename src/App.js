@@ -7,19 +7,20 @@ import {
 } from "react-router-dom";
 import { AppProvider, useApp } from "./context/AppContext";
 import Layout from "./components/Layout/Layout";
-import Login from "./components/Auth/Login";
-import Register from "./components/Auth/Register";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 
-import Unauthorized from "./components/Layout/Unauthorized";
-import NotFound from "./components/Layout/NotFound";
+import Unauthorized from "./pages/Unauthorized";
+import NotFound from "./pages/NotFound";
 import Toast from "./components/Layout/Toast";
-import SubjectView from "./components/Subject/SubjectView";
-import PdfViewer from "./components/PDF/PdfViewer";
-import Profile from "./components/Profile/Profile";
-import SubjectListPage from "./components/Subject/SubjectListPage";
-import Dashboard from "./components/Dashboard/Dashboard";
-import AdminDashboard from "./components/Admin/AdminDashboard";
-import QAHistory from "./components/QA/QAHistory";
+import SubjectDetails from "./pages/SubjectDetails";
+import PdfView from "./pages/PdfView";
+import Profile from "./pages/Profile";
+import Subjects from "./pages/Subjects";
+import Dashboard from "./pages/Dashboard";
+import AdminDashboard from "./pages/AdminDashboard";
+import UserManagement from "./pages/UserManagement";
+import QAHistory from "./pages/QAHistory";
 import ThemeContext from "./context/ThemeContext";
 
 const ProtectedRoute = ({ children }) => {
@@ -89,16 +90,24 @@ const AppRoutes = () => {
               path="dashboard"
               element={isAdmin ? <AdminDashboard /> : <Dashboard />}
             />
-            <Route path="subject/:subjectId" element={<SubjectView />} />
-            <Route path="pdf/:pdfId" element={<PdfViewer />} />
+            <Route path="subject/:subjectId" element={<SubjectDetails />} />
+            <Route path="pdf/:pdfId" element={<PdfView />} />
             <Route path="profile" element={<Profile />} />
-            <Route path="subjects" element={<SubjectListPage />} />
+            <Route path="subjects" element={<Subjects />} />
             <Route path="qa" element={<QAHistory />} />
             <Route
               path="admin"
               element={
                 <AdminRoute>
                   <AdminDashboard />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="users"
+              element={
+                <AdminRoute>
+                  <UserManagement />
                 </AdminRoute>
               }
             />

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Eye, EyeOff, GraduationCap } from "lucide-react";
-import { useApp } from "../../context/AppContext";
+import { useApp } from "../context/AppContext";
 
 const Login = () => {
   const [formData, setFormData] = useState({

@@ -99,7 +99,7 @@ export const AppProvider = ({ children }) => {
   }, [isAuthenticated]);
 
   const getAllUsers = useCallback(async () => {
-    if (user?.role === "admin") {
+    if (user?.role === "admin" || user?.role === "super_admin") {
       try {
         const { data } = await api.get("/users/");
         setAllUsers(Array.isArray(data) ? data : []);
@@ -116,7 +116,7 @@ export const AppProvider = ({ children }) => {
   }, [fetchSubjects, isAuthenticated]);
 
   useEffect(() => {
-    if (isAuthenticated && user?.role === "admin") {
+    if (isAuthenticated && (user?.role === "admin" || user?.role === "super_admin")) {
       getAllUsers();
     }
   }, [isAuthenticated, user, getAllUsers]);
@@ -428,17 +428,22 @@ export const AppProvider = ({ children }) => {
       };
 
       try {
-        const res = await axios.post("http://localhost:5000/api/qa", {
+        const res = await api.post("/users/qa/", {
           pdfId,
+          pdfID: pdfId,
           questionText,
+          question: questionText,
           pageContext,
+          pageNumber: pageContext,
         });
-        newQuestion.answerText = res.data.answerText;
-        newQuestion.confidenceScore = res.data.confidenceScore;
+        newQuestion.answerText = res.data.answerText || res.data.answer;
+        newQuestion.confidenceScore = res.data.confidenceScore ?? res.data.confidence ?? 0.95;
       } catch (error) {
         console.error("Error asking question:", error);
-        newQuestion.answerText =
-          "Sorry, I encountered an error trying to answer your question.";
+        const serverError = error.response?.data?.error || error.response?.data?.answerText;
+        newQuestion.answerText = serverError
+          ? `Error: ${serverError}`
+          : "Sorry, I encountered an error trying to answer your question.";
       }
 
       setQuestions((prev) => [newQuestion, ...prev]);
@@ -447,7 +452,24 @@ export const AppProvider = ({ children }) => {
     [user],
   );
 
-  const isAdmin = useMemo(() => user?.role === "admin", [user]);
+  const updateUserRole = useCallback(
+    async (userId, newRole) => {
+      try {
+        await api.put(`/users/${userId}/role/`, { role: newRole });
+        showToast("User role updated successfully", "success");
+        getAllUsers();
+        return { success: true };
+      } catch (error) {
+        console.error("Error updating user role:", error);
+        showToast(error.response?.data?.error || "Failed to update user role", "error");
+        return { success: false };
+      }
+    },
+    [getAllUsers, showToast]
+  );
+
+  const isAdmin = useMemo(() => user?.role === "admin" || user?.role === "super_admin", [user]);
+  const isSuperAdmin = useMemo(() => user?.role === "super_admin", [user]);
 
   const value = useMemo(
     () => ({
@@ -456,6 +478,7 @@ export const AppProvider = ({ children }) => {
       isAuthenticated,
       subjects,
       isAdmin,
+      isSuperAdmin,
       questions,
       currentPdf,
       sidebarOpen,
@@ -480,6 +503,7 @@ export const AppProvider = ({ children }) => {
       logout,
       updateProfile,
       changePassword,
+      updateUserRole,
 
       // Functions
       showToast,
@@ -508,6 +532,7 @@ export const AppProvider = ({ children }) => {
       isAuthenticated,
       subjects,
       isAdmin,
+      isSuperAdmin,
       questions,
       currentPdf,
       sidebarOpen,
@@ -526,6 +551,7 @@ export const AppProvider = ({ children }) => {
       logout,
       updateProfile,
       changePassword,
+      updateUserRole,
       showToast,
       hideToast,
       openUploadForm,

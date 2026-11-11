@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  font-size: 14px;
+}
+
 body {
   @apply bg-white dark:bg-dark-primary text-gray-800 dark:text-gray-200;
   margin: 0;

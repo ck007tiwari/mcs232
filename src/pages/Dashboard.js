@@ -12,11 +12,11 @@ import {
   Upload,
   Loader,
 } from "lucide-react";
-import { useApp } from "../../context/AppContext";
-import WeeklyProgressChart from "./WeeklyProgressChart";
-import SubjectProgress from "./SubjectProgress";
-import RecentFiles from "./RecentFiles";
-import FileProgressChart from "./FileProgressChart";
+import { useApp } from "../context/AppContext";
+import WeeklyProgressChart from "../components/Dashboard/WeeklyProgressChart";
+import SubjectProgress from "../components/Dashboard/SubjectProgress";
+import RecentFiles from "../components/Dashboard/RecentFiles";
+import FileProgressChart from "../components/Dashboard/FileProgressChart";
 
 const generateColors = (numColors) => {
   const colors = [];

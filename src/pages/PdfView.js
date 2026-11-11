@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, Link, useLocation, useNavigate } from "react-router-dom";
 import { Document, Page, pdfjs } from "react-pdf";
+import { getQAHistory } from "../context/subjectApi";
 import {
   ArrowLeft,
   MessageCircle,
@@ -14,8 +15,8 @@ import {
   File,
   Files,
 } from "lucide-react";
-import { useApp } from "../../context/AppContext";
-import Tooltip from "../../utils/tooltip";
+import { useApp } from "../context/AppContext";
+import Tooltip from "../utils/tooltip";
 
 // Configure PDF worker
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
@@ -111,6 +112,40 @@ const PdfViewer = () => {
       }
     }
   }, [pdfId, subject]);
+
+  // Fetch QA History specifically for this PDF
+  useEffect(() => {
+    if (pdfId && showQA) {
+      const fetchQAHistory = async () => {
+        try {
+          const { data } = await getQAHistory(`/users/qa-history/?subject_file_id=${pdfId}`);
+          if (data) {
+            const formattedMessages = data.map(item => [
+              {
+                id: `q-${item.id}`,
+                text: item.question,
+                sender: "user",
+                timestamp: new Date(item.created_at),
+              },
+              {
+                id: `a-${item.id}`,
+                text: item.answer,
+                sender: "ai",
+                timestamp: new Date(item.created_at),
+                confidence: 0.95 // We assume high confidence for past stored answers or store it if needed
+              }
+            ]).flat().sort((a, b) => a.timestamp - b.timestamp);
+            
+            setChatMessages(formattedMessages);
+          }
+        } catch (error) {
+          console.error("Failed to load QA history:", error);
+        }
+      };
+      
+      fetchQAHistory();
+    }
+  }, [pdfId, showQA]);
 
   const onDocumentLoadSuccess = ({ numPages }) => {
     setNumPages(numPages);
